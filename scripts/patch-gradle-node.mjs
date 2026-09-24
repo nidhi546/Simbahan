@@ -36,54 +36,6 @@ const patches = [
     replace: "        release(MavenPublication) {\n        }\n      }\n      repositories {\n        maven {\n          url = mavenLocal().url\n        }\n      }\n    }\n    project.components.configureEach { component ->\n      if (component.name == \"release\") {\n        publishing.publications.named(\"release\", MavenPublication) { pub ->\n          pub.from(component)\n        }\n      }\n    }\n  }\n}",
   },
   {
-    // Fix: react-native-screens RNSScreenRemovalListener.h — RN 0.79 removed
-    // 'parentShadowView' from ShadowViewMutation. Add a mutable tag→componentName
-    // map so the .cpp can still identify the parent component type.
-    file: 'node_modules/react-native-screens/cpp/RNSScreenRemovalListener.h',
-    find: '#include <react/renderer/mounting/ShadowView.h>\n\nusing namespace facebook::react;\n\nstruct RNSScreenRemovalListener : public MountingOverrideDelegate {\n  std::function<void(int)> listenerFunction_;\n  RNSScreenRemovalListener(std::function<void(int)> &&listenerFunction_)\n      : listenerFunction_(std::move(listenerFunction_)) {}',
-    replace: '#include <react/renderer/mounting/ShadowView.h>\n#include <string>\n#include <unordered_map>\n\nusing namespace facebook::react;\n\nstruct RNSScreenRemovalListener : public MountingOverrideDelegate {\n  std::function<void(int)> listenerFunction_;\n  mutable std::unordered_map<Tag, std::string> tagToComponentName_;\n\n  RNSScreenRemovalListener(std::function<void(int)> &&listenerFunction_)\n      : listenerFunction_(std::move(listenerFunction_)) {}',
-  },
-  {
-    // Fix: react-native-screens RNSScreenRemovalListener.cpp — replace direct
-    // 'mutation.parentShadowView' access (removed in RN 0.79) with a persistent
-    // tag→componentName map lookup via the new 'mutation.parentTag' field.
-    file: 'node_modules/react-native-screens/cpp/RNSScreenRemovalListener.cpp',
-    find: '  for (const ShadowViewMutation &mutation : mutations) {\n    if (mutation.type == ShadowViewMutation::Type::Remove &&\n        mutation.oldChildShadowView.componentName != nullptr &&\n        strcmp(mutation.parentShadowView.componentName, "RNSScreenStack") ==\n            0) {\n      listenerFunction_(mutation.oldChildShadowView.tag);\n    }\n  }\n\n  return MountingTransaction{',
-    replace: '  for (const ShadowViewMutation &mutation : mutations) {\n    if (mutation.newChildShadowView.tag != 0 &&\n        mutation.newChildShadowView.componentName != nullptr) {\n      tagToComponentName_[mutation.newChildShadowView.tag] =\n          mutation.newChildShadowView.componentName;\n    }\n    if (mutation.type == ShadowViewMutation::Type::Delete &&\n        mutation.oldChildShadowView.tag != 0) {\n      tagToComponentName_.erase(mutation.oldChildShadowView.tag);\n    }\n  }\n\n  for (const ShadowViewMutation &mutation : mutations) {\n    if (mutation.type == ShadowViewMutation::Type::Remove &&\n        mutation.oldChildShadowView.componentName != nullptr) {\n      auto it = tagToComponentName_.find(mutation.parentTag);\n      if (it != tagToComponentName_.end() &&\n          it->second == "RNSScreenStack") {\n        listenerFunction_(mutation.oldChildShadowView.tag);\n      }\n    }\n  }\n\n  return MountingTransaction{',
-  },
-  {
-    // Fix: react-native-screens ScreenStackFragment — RN 0.79 changed ReactPointerEventsView
-    // from getPointerEvents() method to abstract 'val pointerEvents' property.
-    file: 'node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt',
-    find: '        override fun getPointerEvents(): PointerEvents = PointerEvents.BOX_NONE',
-    replace: '        override val pointerEvents: PointerEvents get() = PointerEvents.BOX_NONE',
-  },
-  {
-    // Fix: react-native-screens DimmingView — same ReactPointerEventsView API change.
-    file: 'node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/DimmingView.kt',
-    find: '    override fun getPointerEvents(): PointerEvents =\n        if (blockGestures) PointerEvents.AUTO else PointerEvents.NONE',
-    replace: '    override val pointerEvents: PointerEvents get() =\n        if (blockGestures) PointerEvents.AUTO else PointerEvents.NONE',
-  },
-  {
-    // Fix: react-native-screens GestureTransparentViewGroup — same ReactPointerEventsView API change.
-    file: 'node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/GestureTransparentViewGroup.kt',
-    find: '    override fun getPointerEvents(): PointerEvents = PointerEvents.BOX_NONE',
-    replace: '    override val pointerEvents: PointerEvents get() = PointerEvents.BOX_NONE',
-  },
-  {
-    // Fix: react-native-screens BottomSheetDialogRootView — RN 0.79 changed RootView API:
-    // onChildStartedNativeGesture(View, MotionEvent) → View? (nullable);
-    // handleException(Throwable?) → Throwable (non-nullable).
-    file: 'node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt',
-    find: '    override fun onChildStartedNativeGesture(\n        view: View,\n        event: MotionEvent,\n    ) {\n        jsTouchDispatcher.onChildStartedNativeGesture(event, eventDispatcher)\n        jsPointerDispatcher?.onChildStartedNativeGesture(view, event, eventDispatcher)\n    }',
-    replace: '    override fun onChildStartedNativeGesture(\n        view: View?,\n        event: MotionEvent,\n    ) {\n        jsTouchDispatcher.onChildStartedNativeGesture(event, eventDispatcher)\n        jsPointerDispatcher?.onChildStartedNativeGesture(view ?: return, event, eventDispatcher)\n    }',
-  },
-  {
-    file: 'node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt',
-    find: '    override fun handleException(throwable: Throwable?)',
-    replace: '    override fun handleException(throwable: Throwable)',
-  },
-  {
     // Fix: ExpoGradleHelperExtension calls bare 'node' to locate react-native/package.json.
     // Gradle daemon doesn't inherit the shell PATH, so 'node' can't be found when running
     // from Android Studio. Use NODE_BINARY env var or node.binary JVM property instead.
