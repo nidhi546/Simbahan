@@ -7,6 +7,7 @@ import AppText from '../ui/AppText';
 import Badge from '../ui/Badge';
 import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
+import { useI18n } from '../../i18n';
 
 interface NovenaCardProps {
   id: string;
@@ -17,6 +18,7 @@ interface NovenaCardProps {
 }
 
 const NovenaCard = ({ id, patron, feastDate, image, completedDays = [] }: NovenaCardProps) => {
+  const { t } = useI18n();
   const handlePress = useCallback(() => router.push(`/novenas/${id}` as never), [id]);
   const progress = completedDays.length;
 
@@ -34,7 +36,7 @@ const NovenaCard = ({ id, patron, feastDate, image, completedDays = [] }: Novena
       <View style={styles.info}>
         <AppText variant="headingSm" color={Colors.navy} numberOfLines={2}>{patron}</AppText>
         <AppText variant="caption" color={Colors.textMuted}>{feastDate}</AppText>
-        <Badge label="Nobena" variant="gold" />
+        <Badge label={t('novenas.badge')} variant="gold" />
         {progress > 0 && (
           <View style={styles.progressRow}>
             <View style={styles.progressTrack}>

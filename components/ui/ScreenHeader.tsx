@@ -7,6 +7,7 @@ import { Colors } from '../../constants/Colors';
 import { Spacing } from '../../constants/Layout';
 import AppText from './AppText';
 import { useUiStore } from '../../store/uiStore';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 
@@ -21,13 +22,14 @@ interface ScreenHeaderProps {
 const ScreenHeader = ({ title, subtitle, onBack, rightAction, showMenu = false }: ScreenHeaderProps) => {
   const insets = useSafeAreaInsets();
   const openSidebar = useUiStore((s) => s.openSidebar);
+  const { t } = useI18n();
   const handleMenu = useCallback(() => openSidebar(), [openSidebar]);
 
   const leftSlot = onBack ? (
     <TouchableOpacity
       onPress={onBack}
       accessible
-      accessibilityLabel="Go back"
+      accessibilityLabel={t('ui.goBack')}
       style={styles.iconBtn}
       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
     >
@@ -37,7 +39,7 @@ const ScreenHeader = ({ title, subtitle, onBack, rightAction, showMenu = false }
     <TouchableOpacity
       onPress={handleMenu}
       accessible
-      accessibilityLabel="Open menu"
+      accessibilityLabel={t('nav.openMenu')}
       style={styles.iconBtn}
       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
     >

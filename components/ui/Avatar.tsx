@@ -4,6 +4,7 @@ import Img from './Img';
 import { Colors } from '../../constants/Colors';
 import { Radius } from '../../constants/Layout';
 import AppText from './AppText';
+import { useI18n } from '../../i18n';
 
 type AvatarSize = 'sm' | 'md' | 'lg';
 
@@ -25,6 +26,7 @@ const getInitials = (name?: string) => {
 };
 
 const Avatar = ({ uri, name, size = 'md' }: AvatarProps) => {
+  const { t } = useI18n();
   const dim = sizeMap[size];
   const fontSize = fontSizeMap[size];
 
@@ -36,7 +38,7 @@ const Avatar = ({ uri, name, size = 'md' }: AvatarProps) => {
         contentFit="cover"
         transition={200}
         accessible
-        accessibilityLabel={name ?? 'Avatar'}
+        accessibilityLabel={name ?? t('ui.avatar')}
       />
     );
   }
@@ -45,7 +47,7 @@ const Avatar = ({ uri, name, size = 'md' }: AvatarProps) => {
     <View
       style={StyleSheet.flatten([styles.fallback, { width: dim, height: dim, borderRadius: Radius.full }])}
       accessible
-      accessibilityLabel={name ?? 'Avatar'}
+      accessibilityLabel={name ?? t('ui.avatar')}
     >
       <AppText variant="label" color={Colors.textInverse} style={{ fontSize }}>
         {getInitials(name)}

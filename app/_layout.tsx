@@ -18,7 +18,7 @@ import { useBookmarkStore } from "../store/bookmarkStore";
 import { useChurchStore } from "../store/churchStore";
 import { useCountryStore } from "../store/countryStore";
 import { ThemeProvider, useTheme } from "../theme/ThemeContext";
-import { I18nProvider } from "../i18n";
+import { I18nProvider, useI18n } from "../i18n";
 import Toast from "../components/ui/Toast";
 import Sidebar from "../components/ui/Sidebar";
 import AppText from "../components/ui/AppText";
@@ -30,6 +30,7 @@ const ROOT_ROUTES = ["/home", "/"];
 
 function DemoBanner() {
   const { theme } = useTheme();
+  const { t } = useI18n();
   if (Platform.OS !== "web") return null;
   return (
     <View
@@ -43,7 +44,7 @@ function DemoBanner() {
       }}
     >
       <AppText variant="label" color={theme.primaryDark}>
-        ✦ DEMO MODE — Simbahan App v1.0
+        {t("appShell.demoBanner")}
       </AppText>
     </View>
   );
@@ -51,15 +52,16 @@ function DemoBanner() {
 
 function AndroidBackHandler() {
   const pathname = usePathname();
+  const { t } = useI18n();
 
   useEffect(() => {
     if (Platform.OS !== "android") return;
     const handler = BackHandler.addEventListener("hardwareBackPress", () => {
       if (ROOT_ROUTES.includes(pathname)) {
-        Alert.alert("Isara ang App", "Sigurado ka bang gusto mong lumabas?", [
-          { text: "Hindi", style: "cancel" },
+        Alert.alert(t("appShell.exitTitle"), t("appShell.exitMessage"), [
+          { text: t("common.no"), style: "cancel" },
           {
-            text: "Oo",
+            text: t("common.yes"),
             style: "destructive",
             onPress: () => BackHandler.exitApp(),
           },
@@ -69,7 +71,7 @@ function AndroidBackHandler() {
       return false;
     });
     return () => handler.remove();
-  }, [pathname]);
+  }, [pathname, t]);
 
   return null;
 }

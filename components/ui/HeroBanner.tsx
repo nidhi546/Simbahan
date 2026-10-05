@@ -10,23 +10,24 @@ import {
 import Img from '../ui/Img';
 import { Ionicons } from '@expo/vector-icons';
 import AppText from './AppText';
+import { useI18n } from '../../i18n';
 import { Colors } from '../../constants/Colors';
 
 const SLIDES = [
   {
     uri: 'https://images.unsplash.com/photo-1507692049790-de58290a4334?w=1400&q=80',
-    title: 'Welcome to Simbahan',
-    subtitle: 'Your parish, in your pocket',
+    titleKey: 'ui.hero.slide1Title',
+    subtitleKey: 'ui.hero.slide1Subtitle',
   },
   {
     uri: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1400&q=80',
-    title: 'Faith & Community',
-    subtitle: 'Stay connected with your parish family',
+    titleKey: 'ui.hero.slide2Title',
+    subtitleKey: 'ui.hero.slide2Subtitle',
   },
   {
     uri: 'https://images.unsplash.com/photo-1519494080410-f9aa8f52f3c1?w=1400&q=80',
-    title: 'Prayer & Worship',
-    subtitle: 'Daily readings, Mass schedules & more',
+    titleKey: 'ui.hero.slide3Title',
+    subtitleKey: 'ui.hero.slide3Subtitle',
   },
 ];
 
@@ -38,6 +39,7 @@ type Props = { hideTitle?: boolean };
 export default function HeroBanner({ hideTitle = false }: Props) {
   const { width } = useWindowDimensions();
   const [current, setCurrent] = useState(0);
+  const { t } = useI18n();
   const opacity = useRef(new Animated.Value(1)).current;
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -102,10 +104,10 @@ export default function HeroBanner({ hideTitle = false }: Props) {
       {!hideTitle && (
         <View style={styles.titleWrap} pointerEvents="none">
           <AppText variant="headingMd" color={Colors.textInverse} style={styles.title}>
-            {SLIDES[current].title}
+            {t(SLIDES[current].titleKey)}
           </AppText>
           <AppText variant="bodySm" color={Colors.goldLight} style={styles.subtitle}>
-            {SLIDES[current].subtitle}
+            {t(SLIDES[current].subtitleKey)}
           </AppText>
         </View>
       )}
@@ -116,7 +118,7 @@ export default function HeroBanner({ hideTitle = false }: Props) {
         onPress={() => advance(-1)}
         activeOpacity={0.75}
         accessible
-        accessibilityLabel="Previous slide"
+        accessibilityLabel={t('ui.hero.prevSlide')}
       >
         <Ionicons name="chevron-back" size={22} color={Colors.textInverse} />
       </TouchableOpacity>
@@ -127,7 +129,7 @@ export default function HeroBanner({ hideTitle = false }: Props) {
         onPress={() => advance(1)}
         activeOpacity={0.75}
         accessible
-        accessibilityLabel="Next slide"
+        accessibilityLabel={t('ui.hero.nextSlide')}
       >
         <Ionicons name="chevron-forward" size={22} color={Colors.textInverse} />
       </TouchableOpacity>
@@ -139,7 +141,7 @@ export default function HeroBanner({ hideTitle = false }: Props) {
             key={i}
             onPress={() => goTo(i)}
             accessible
-            accessibilityLabel={`Go to slide ${i + 1}`}
+            accessibilityLabel={t('ui.hero.goToSlide', { n: i + 1 })}
             style={StyleSheet.flatten([styles.dot, i === current && styles.dotActive])}
           />
         ))}

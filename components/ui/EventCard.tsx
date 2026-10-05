@@ -7,6 +7,7 @@ import { Spacing, Radius, Shadows } from '../../constants/Layout';
 import AppText from './AppText';
 import { RsvpStatus } from '../../store/churchStore';
 import { formatEventDate, formatTime } from '../../utils/dateHelpers';
+import { useI18n } from '../../i18n';
 
 type Props = {
   id: string;
@@ -23,13 +24,14 @@ type Props = {
 };
 
 const RSVP_CONFIG = {
-  Pupunta: { icon: 'checkmark-circle' as const, color: Colors.sage },
-  Baka: { icon: 'help-circle' as const, color: Colors.gold },
-  Hindi: { icon: 'close-circle' as const, color: Colors.crimson },
+  Pupunta: { icon: 'checkmark-circle' as const, color: Colors.sage, labelKey: 'ui.rsvp.going' },
+  Baka: { icon: 'help-circle' as const, color: Colors.gold, labelKey: 'ui.rsvp.maybe' },
+  Hindi: { icon: 'close-circle' as const, color: Colors.crimson, labelKey: 'ui.rsvp.notGoing' },
 };
 
 const EventCard = ({ id, title, category, date, time, location, image, rsvpEnabled, rsvpStatus, viewMode, onPress }: Props) => {
   const handlePress = () => onPress(id);
+  const { t, language } = useI18n();
 
   if (viewMode === 'grid') {
     return (
@@ -47,7 +49,7 @@ const EventCard = ({ id, title, category, date, time, location, image, rsvpEnabl
           <View style={styles.metaItem}>
             <Ionicons name="calendar-outline" size={11} color={Colors.textMuted} />
             <AppText variant="caption" color={Colors.textMuted} style={styles.metaText}>
-              {formatEventDate(date)}
+              {formatEventDate(date, language)}
             </AppText>
           </View>
         </View>
@@ -74,7 +76,7 @@ const EventCard = ({ id, title, category, date, time, location, image, rsvpEnabl
         </AppText>
         <View style={styles.metaItem}>
           <Ionicons name="calendar-outline" size={12} color={Colors.textMuted} />
-          <AppText variant="caption" color={Colors.textMuted} style={styles.metaText}>{formatEventDate(date)}</AppText>
+          <AppText variant="caption" color={Colors.textMuted} style={styles.metaText}>{formatEventDate(date, language)}</AppText>
         </View>
         <View style={styles.metaItem}>
           <Ionicons name="time-outline" size={12} color={Colors.textMuted} />
@@ -87,7 +89,7 @@ const EventCard = ({ id, title, category, date, time, location, image, rsvpEnabl
         {rsvpEnabled && rsvp && (
           <View style={styles.rsvpRow}>
             <Ionicons name={rsvp.icon} size={13} color={rsvp.color} />
-            <AppText variant="caption" color={rsvp.color} style={styles.metaText}>{rsvpStatus}</AppText>
+            <AppText variant="caption" color={rsvp.color} style={styles.metaText}>{t(rsvp.labelKey)}</AppText>
           </View>
         )}
       </View>

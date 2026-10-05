@@ -16,12 +16,16 @@ import {
   getMarkedDates,
   isAbstinenceDay,
   formatFilipinoDate,
+  formatRank,
+  formatSeasonTime,
 } from '../../utils/liturgicalHelpers';
+import { useI18n } from '../../i18n';
 
-const LITURGICAL_YEAR = 'Taon C';
+const LITURGICAL_YEAR_KEY = 'liturgical.yearC';
 
 const LiturgicalCalendarView = () => {
   const liturgicalCalendar = useChurchStore((s) => s.liturgicalCalendar);
+  const { t, language } = useI18n();
   const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
   const [selectedDate, setSelectedDate] = useState(todayStr);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -94,24 +98,24 @@ const LiturgicalCalendarView = () => {
       {/* Season Banner */}
       <View style={StyleSheet.flatten([styles.seasonBanner, { backgroundColor: seasonBg }])}>
         <AppText variant="label" color={Colors.textInverse} style={styles.seasonLabel}>
-          {(currentSeason?.season ?? 'ORDINARY').toUpperCase()} TIME
+          {formatSeasonTime(currentSeason?.season ?? 'ordinary', t).toUpperCase()}
         </AppText>
         <AppText variant="displaySm" color={Colors.textInverse} numberOfLines={2}>
-          {currentSeason?.name ?? 'Ordinary Time'}
+          {currentSeason?.name ?? t('liturgical.seasonTime.ordinary')}
         </AppText>
         <View style={styles.seasonMeta}>
           <AppText variant="caption" color={Colors.textInverse} style={styles.seasonYear}>
-            {LITURGICAL_YEAR}
+            {t(LITURGICAL_YEAR_KEY)}
           </AppText>
           <View style={StyleSheet.flatten([styles.colorDot, { backgroundColor: Colors.textInverse }])} />
           <AppText variant="caption" color={Colors.textInverse}>
-            {formatFilipinoDate()}
+            {formatFilipinoDate(new Date(), language)}
           </AppText>
         </View>
         {abstinence && (
           <View style={styles.fastingBadge}>
             <Ionicons name="leaf-outline" size={12} color={Colors.textInverse} />
-            <AppText variant="caption" color={Colors.textInverse}> Araw ng Abstinensya</AppText>
+            <AppText variant="caption" color={Colors.textInverse}> {t('calendar.abstinenceDay')}</AppText>
           </View>
         )}
       </View>
@@ -119,6 +123,7 @@ const LiturgicalCalendarView = () => {
       {/* Calendar */}
       <View style={styles.calendarWrap}>
         <Calendar
+            key={language}
           onDayPress={handleDayPress}
           markedDates={markedDates}
           theme={calendarTheme}
@@ -134,7 +139,7 @@ const LiturgicalCalendarView = () => {
             <TouchableOpacity
               onPress={() => setPanelOpen(false)}
               accessible
-              accessibilityLabel="Close panel"
+              accessibilityLabel={t('calendar.closePanelA11y')}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <Ionicons name="close" size={20} color={Colors.textMuted} />
@@ -144,19 +149,19 @@ const LiturgicalCalendarView = () => {
             <View style={styles.panelContent}>
               <AppText variant="headingSm" color={Colors.navy}>{selectedFeast.name}</AppText>
               <Badge
-                label={selectedFeast.rank}
+                label={formatRank(selectedFeast.rank, t)}
                 variant={selectedFeast.rank === 'Solemnity' ? 'gold' : 'navy'}
               />
               {isAbstinenceDay([]) && (
                 <View style={styles.fastingRow}>
                   <Ionicons name="leaf-outline" size={14} color={Colors.sage} />
-                  <AppText variant="bodySm" color={Colors.sage}> Araw ng Pag-aayuno</AppText>
+                  <AppText variant="bodySm" color={Colors.sage}> {t('calendar.fastingDay')}</AppText>
                 </View>
               )}
             </View>
           ) : (
             <AppText variant="bodySm" color={Colors.textMuted}>
-              Walang espesyal na kapistahan sa araw na ito.
+              {t('calendar.noSpecialFeast')}
             </AppText>
           )}
         </View>
@@ -172,11 +177,11 @@ const LiturgicalCalendarView = () => {
       {/* Upcoming Feasts */}
       <View style={styles.section}>
         <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>
-          Mga Darating na Kapistahan
+          {t('calendar.upcomingFeasts')}
         </AppText>
         {upcomingFeasts.length === 0 ? (
           <AppText variant="bodySm" color={Colors.textMuted}>
-            Walang kapistahan sa susunod na 30 araw.
+            {t('calendar.noFeastsNext30')}
           </AppText>
         ) : (
           upcomingFeasts.map((feast) => (
@@ -191,7 +196,7 @@ const LiturgicalCalendarView = () => {
                   {feast.name}
                 </AppText>
                 <Badge
-                  label={feast.rank}
+                  label={formatRank(feast.rank, t)}
                   variant={feast.rank === 'Solemnity' ? 'gold' : feast.rank === 'Feast' ? 'navy' : 'muted'}
                 />
               </View>

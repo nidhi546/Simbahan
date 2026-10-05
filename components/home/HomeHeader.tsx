@@ -8,20 +8,22 @@ import { useAuthStore } from '../../store/authStore';
 import { useChurchStore } from '../../store/churchStore';
 import { useUiStore } from '../../store/uiStore';
 import churchData from '../../data/church.json';
+import { useI18n } from '../../i18n';
+import type { LanguageCode } from '../../store/countryStore';
 
 const isWeb = Platform.OS === 'web';
 
 type Season = 'advent' | 'lent' | 'christmas' | 'ordinary' | 'easter' | 'pentecost';
 
-function getGreeting(): string {
+function getGreetingKey(): string {
   const h = new Date().getHours();
-  if (h < 12) return 'Magandang umaga';
-  if (h < 18) return 'Magandang hapon';
-  return 'Magandang gabi';
+  if (h < 12) return 'home.greeting';
+  if (h < 18) return 'home.greetingAfternoon';
+  return 'home.greetingEvening';
 }
 
-function getFilipinDate(): string {
-  return new Date().toLocaleDateString('fil-PH', {
+function getFilipinDate(language: LanguageCode): string {
+  return new Date().toLocaleDateString(language === 'en' ? 'en-PH' : 'fil-PH', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -43,9 +45,10 @@ const HomeHeader = ({ hasUnread }: HomeHeaderProps) => {
   const currentUser = useAuthStore((s) => s.currentUser);
   const liturgicalCalendar = useChurchStore((s) => s.liturgicalCalendar);
   const openSidebar = useUiStore((s) => s.openSidebar);
+  const { t, language } = useI18n();
 
-  const greeting = useMemo(() => getGreeting(), []);
-  const dateStr = useMemo(() => getFilipinDate(), []);
+  const greeting = useMemo(() => t(getGreetingKey()), [t]);
+  const dateStr = useMemo(() => getFilipinDate(language), [language]);
   const season = useMemo(() => getCurrentSeason(liturgicalCalendar), [liturgicalCalendar]);
 
   const handleMenu = useCallback(() => openSidebar(), [openSidebar]);
@@ -59,7 +62,7 @@ const HomeHeader = ({ hasUnread }: HomeHeaderProps) => {
             <TouchableOpacity
               onPress={handleMenu}
               accessible
-              accessibilityLabel="Open menu"
+              accessibilityLabel={t('nav.openMenu')}
               style={styles.menuBtn}
               activeOpacity={0.7}
             >
@@ -72,7 +75,7 @@ const HomeHeader = ({ hasUnread }: HomeHeaderProps) => {
           )}
           <TouchableOpacity
             accessible
-            accessibilityLabel="Notifications"
+            accessibilityLabel={t('home.notificationsA11y')}
             style={styles.notifBtn}
             activeOpacity={0.7}
           >
@@ -84,7 +87,7 @@ const HomeHeader = ({ hasUnread }: HomeHeaderProps) => {
         <View style={styles.body}>
           <AppText variant="bodySm" color={Colors.goldLight}>{greeting},</AppText>
           <AppText variant="displaySm" color={Colors.textInverse} numberOfLines={1}>
-            {currentUser?.firstName ?? 'Kaibigan'}
+            {currentUser?.firstName ?? t('home.guestName')}
           </AppText>
           <AppText variant="bodyMd" color={Colors.gold} style={styles.churchName} numberOfLines={1}>
             {churchData.name}

@@ -12,17 +12,19 @@ import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { useModule09Store } from '../../store/module09Store';
 import novenasData from '../../data/novenas.json';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 
 const DEVOTIONS = [
-  { id: 'rosary',  label: 'Rosaryo',  icon: 'ellipse-outline'   as const, route: '/novenas/rosary' },
-  { id: 'chaplet', label: 'Chaplet',  icon: 'infinite-outline'  as const, route: '/novenas/rosary' },
-  { id: 'angelus', label: 'Angelus',  icon: 'sunny-outline'     as const, route: '/novenas/rosary' },
-  { id: 'litany',  label: 'Litanya',  icon: 'list-outline'      as const, route: '/novenas/rosary' },
+  { id: 'rosary',  labelKey: 'novenas.devotionRosary',  icon: 'ellipse-outline'   as const, route: '/novenas/rosary' },
+  { id: 'chaplet', labelKey: 'novenas.devotionChaplet',  icon: 'infinite-outline'  as const, route: '/novenas/rosary' },
+  { id: 'angelus', labelKey: 'novenas.devotionAngelus',  icon: 'sunny-outline'     as const, route: '/novenas/rosary' },
+  { id: 'litany',  labelKey: 'novenas.devotionLitany',  icon: 'list-outline'      as const, route: '/novenas/rosary' },
 ];
 
 export default function NovenasScreen() {
+  const { t } = useI18n();
   const novenaProgress = useModule09Store((s) => s.novenaProgress);
   const featured = novenasData[0];
 
@@ -35,21 +37,21 @@ export default function NovenasScreen() {
     <ScrollView style={styles.screen} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       <BackBar />
       <GradientView colors={[Colors.gold, Colors.goldLight]} style={styles.header}>
-        <AppText variant="displaySm" color={Colors.navyDark}>Mga Nobena at Dasal</AppText>
+        <AppText variant="displaySm" color={Colors.navyDark}>{t('novenas.headerTitle')}</AppText>
         <AppText variant="bodySm" color={Colors.navyDark} style={{ opacity: 0.7 }}>
-          Prayers &amp; devotions
+          {t('novenas.headerSubtitle')}
         </AppText>
       </GradientView>
 
       {/* Featured novena */}
       <View style={styles.section}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>Itinatampok</AppText>
+        <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>{t('novenas.featured')}</AppText>
         <GradientView colors={[Colors.crimson, Colors.crimsonLight]} style={styles.featuredCard}>
-          <AppText variant="caption" color="rgba(255,255,255,0.7)">Kasalukuyang Nobena</AppText>
+          <AppText variant="caption" color="rgba(255,255,255,0.7)">{t('novenas.currentNovena')}</AppText>
           <AppText variant="headingMd" color={Colors.textInverse}>{featured.patron}</AppText>
           <View style={styles.featuredMeta}>
             <View style={styles.dayBadge}>
-              <AppText variant="label" color={Colors.crimson}>Araw 1 ng 9</AppText>
+              <AppText variant="label" color={Colors.crimson}>{t('novenas.dayOfNine', { day: 1 })}</AppText>
             </View>
             <AppText variant="caption" color="rgba(255,255,255,0.8)">{featured.feastDate}</AppText>
           </View>
@@ -57,16 +59,16 @@ export default function NovenasScreen() {
             onPress={() => router.push(`/novenas/${featured.id}` as never)}
             style={styles.continueBtn}
             accessible
-            accessibilityLabel="Ituloy ang nobena"
+            accessibilityLabel={t('novenas.continueA11y')}
           >
-            <AppText variant="label" color={Colors.crimson}>Ituloy →</AppText>
+            <AppText variant="label" color={Colors.crimson}>{t('novenas.continue')}</AppText>
           </TouchableOpacity>
         </GradientView>
       </View>
 
       {/* Novena list */}
       <View style={styles.section}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>Lahat ng Nobena</AppText>
+        <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>{t('novenas.allNovenas')}</AppText>
         <View style={styles.list}>
           {novenasData.map((n) => (
             <NovenaCard
@@ -83,7 +85,7 @@ export default function NovenasScreen() {
 
       {/* Devotions grid */}
       <View style={styles.section}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>Mga Debosyon</AppText>
+        <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>{t('novenas.devotions')}</AppText>
         <View style={styles.grid}>
           {DEVOTIONS.map((d) => (
             <TouchableOpacity
@@ -91,11 +93,11 @@ export default function NovenasScreen() {
               onPress={() => router.push(d.route as never)}
               style={styles.devotionCard}
               accessible
-              accessibilityLabel={d.label}
+              accessibilityLabel={t(d.labelKey)}
               activeOpacity={0.8}
             >
               <Ionicons name={d.icon} size={28} color={Colors.gold} />
-              <AppText variant="label" color={Colors.navy} style={styles.devotionLabel}>{d.label}</AppText>
+              <AppText variant="label" color={Colors.navy} style={styles.devotionLabel}>{t(d.labelKey)}</AppText>
             </TouchableOpacity>
           ))}
         </View>

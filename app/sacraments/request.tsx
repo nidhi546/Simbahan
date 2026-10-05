@@ -11,12 +11,13 @@ import { Spacing, Radius } from '../../constants/Layout';
 import { useModule09Store, SacramentType } from '../../store/module09Store';
 import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 
-const LABELS: Record<string, string> = {
-  baptism: 'Binyag', marriage: 'Kasal', confirmation: 'Kumpil',
-  anointing: 'Panghuling Habilin', funeral: 'Libing', other: 'Iba pa',
+const LABEL_KEYS: Record<string, string> = {
+  baptism: 'sacraments.types.baptism', marriage: 'sacraments.types.marriage', confirmation: 'sacraments.types.confirmation',
+  anointing: 'sacraments.types.anointing', funeral: 'sacraments.types.funeral', other: 'sacraments.types.other',
 };
 
 const SACRAMENT_TYPES: SacramentType[] = ['baptism','marriage','confirmation','anointing','funeral','other'];
@@ -53,6 +54,7 @@ export default function SacramentRequestScreen() {
   const submitRequest = useModule09Store((s) => s.submitSacramentRequest);
   const currentUser = useAuthStore((s) => s.currentUser);
   const showToast = useUiStore((s) => s.showToast);
+  const { t } = useI18n();
 
   const set = useCallback((key: string) => (val: string) => setFields((f) => ({ ...f, [key]: val })), []);
 
@@ -79,20 +81,20 @@ export default function SacramentRequestScreen() {
     });
     setSaving(false);
     setSubmitted(true);
-    showToast('Naisumite ang kahilingan!', 'success');
-  }, [sacType, fields, currentUser, submitRequest, showToast]);
+    showToast(t('sacramentRequest.submittedToast'), 'success');
+  }, [sacType, fields, currentUser, submitRequest, showToast, t]);
 
   if (submitted) {
     return (
       <SafeAreaView style={[styles.screen, styles.successScreen]} edges={['top']}>
         <Ionicons name="checkmark-circle" size={72} color={Colors.sage} />
         <AppText variant="displaySm" color={Colors.navy} style={{ textAlign: 'center' }}>
-          Naisumite na!
+          {t('sacramentRequest.successTitle')}
         </AppText>
         <AppText variant="bodyMd" color={Colors.textSecondary} style={{ textAlign: 'center' }}>
-          Makikipag-ugnayan sa inyo ang parokya para sa kumpirmasyon.
+          {t('sacramentRequest.successMessage')}
         </AppText>
-        <AppButton label="Bumalik" onPress={() => router.back()} />
+        <AppButton label={t('sacramentRequest.back')} onPress={() => router.back()} />
       </SafeAreaView>
     );
   }
@@ -100,27 +102,27 @@ export default function SacramentRequestScreen() {
   const content = (
     <ScrollView style={styles.screen} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} accessible accessibilityLabel="Bumalik">
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} accessible accessibilityLabel={t('sacramentRequest.back')}>
           <Ionicons name="arrow-back" size={20} color={Colors.navy} />
-          <AppText variant="bodyMd" color={Colors.navy}>Bumalik</AppText>
+          <AppText variant="bodyMd" color={Colors.navy}>{t('sacramentRequest.back')}</AppText>
         </TouchableOpacity>
-        <AppText variant="headingMd" color={Colors.navy}>Kahilingan sa Sakramento</AppText>
+        <AppText variant="headingMd" color={Colors.navy}>{t('sacramentRequest.title')}</AppText>
       </View>
 
       {/* Type selector */}
       <View style={styles.card}>
-        <AppText variant="headingSm" color={Colors.navy}>Uri ng Sakramento</AppText>
+        <AppText variant="headingSm" color={Colors.navy}>{t('sacramentRequest.typeLabel')}</AppText>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.typeRow}>
-          {SACRAMENT_TYPES.map((t) => (
+          {SACRAMENT_TYPES.map((type) => (
             <TouchableOpacity
-              key={t}
-              onPress={() => setSacType(t)}
-              style={[styles.typeChip, sacType === t && styles.typeChipActive]}
+              key={type}
+              onPress={() => setSacType(type)}
+              style={[styles.typeChip, sacType === type && styles.typeChipActive]}
               accessible
-              accessibilityLabel={LABELS[t]}
+              accessibilityLabel={t(LABEL_KEYS[type])}
             >
-              <AppText variant="label" color={sacType === t ? Colors.textInverse : Colors.textMuted}>
-                {LABELS[t]}
+              <AppText variant="label" color={sacType === type ? Colors.textInverse : Colors.textMuted}>
+                {t(LABEL_KEYS[type])}
               </AppText>
             </TouchableOpacity>
           ))}
@@ -129,41 +131,41 @@ export default function SacramentRequestScreen() {
 
       {/* Dynamic fields */}
       <View style={styles.card}>
-        <AppText variant="headingSm" color={Colors.navy}>{LABELS[sacType]}</AppText>
+        <AppText variant="headingSm" color={Colors.navy}>{t(LABEL_KEYS[sacType])}</AppText>
 
         {sacType === 'baptism' && <>
-          <Field label="Pangalan ng Bata" value={fields.childName ?? ''} onChange={set('childName')} />
-          <Field label="Pangalan ng mga Magulang" value={fields.parentNames ?? ''} onChange={set('parentNames')} />
-          <Field label="Petsa ng Binyag" value={fields.date ?? ''} onChange={set('date')} placeholder="YYYY-MM-DD" />
-          <Field label="Contact" value={fields.contact ?? ''} onChange={set('contact')} />
+          <Field label={t('sacramentRequest.childName')} value={fields.childName ?? ''} onChange={set('childName')} />
+          <Field label={t('sacramentRequest.parentNames')} value={fields.parentNames ?? ''} onChange={set('parentNames')} />
+          <Field label={t('sacramentRequest.baptismDate')} value={fields.date ?? ''} onChange={set('date')} placeholder="YYYY-MM-DD" />
+          <Field label={t('sacramentRequest.contact')} value={fields.contact ?? ''} onChange={set('contact')} />
         </>}
 
         {sacType === 'marriage' && <>
-          <Field label="Pangalan ng Nobya" value={fields.spouseName ?? ''} onChange={set('spouseName')} placeholder="Bride's name" />
-          <Field label="Pangalan ng Nobyo" value={fields.parentNames ?? ''} onChange={set('parentNames')} placeholder="Groom's name" />
-          <Field label="Petsa ng Kasal" value={fields.date ?? ''} onChange={set('date')} placeholder="YYYY-MM-DD" />
-          <Field label="Contact" value={fields.contact ?? ''} onChange={set('contact')} />
+          <Field label={t('sacramentRequest.brideName')} value={fields.spouseName ?? ''} onChange={set('spouseName')} placeholder={t('sacramentRequest.brideNamePlaceholder')} />
+          <Field label={t('sacramentRequest.groomName')} value={fields.parentNames ?? ''} onChange={set('parentNames')} placeholder={t('sacramentRequest.groomNamePlaceholder')} />
+          <Field label={t('sacramentRequest.weddingDate')} value={fields.date ?? ''} onChange={set('date')} placeholder="YYYY-MM-DD" />
+          <Field label={t('sacramentRequest.contact')} value={fields.contact ?? ''} onChange={set('contact')} />
         </>}
 
         {sacType === 'anointing' && <>
-          <Field label="Pangalan ng Pasyente" value={fields.patientName ?? ''} onChange={set('patientName')} />
-          <Field label="Lokasyon" value={fields.location ?? ''} onChange={set('location')} />
-          <Field label="Urgency" value={fields.urgency ?? ''} onChange={set('urgency')} placeholder="Normal / Urgent" />
+          <Field label={t('sacramentRequest.patientName')} value={fields.patientName ?? ''} onChange={set('patientName')} />
+          <Field label={t('sacramentRequest.location')} value={fields.location ?? ''} onChange={set('location')} />
+          <Field label={t('sacramentRequest.urgency')} value={fields.urgency ?? ''} onChange={set('urgency')} placeholder={t('sacramentRequest.urgencyPlaceholder')} />
         </>}
 
         {sacType === 'funeral' && <>
-          <Field label="Pangalan ng Pumanaw" value={fields.deceasedName ?? ''} onChange={set('deceasedName')} />
-          <Field label="Petsa ng Libing" value={fields.date ?? ''} onChange={set('date')} placeholder="YYYY-MM-DD" />
-          <Field label="Contact" value={fields.contact ?? ''} onChange={set('contact')} />
+          <Field label={t('sacramentRequest.deceasedName')} value={fields.deceasedName ?? ''} onChange={set('deceasedName')} />
+          <Field label={t('sacramentRequest.funeralDate')} value={fields.date ?? ''} onChange={set('date')} placeholder="YYYY-MM-DD" />
+          <Field label={t('sacramentRequest.contact')} value={fields.contact ?? ''} onChange={set('contact')} />
         </>}
 
         {(sacType === 'confirmation' || sacType === 'other') && <>
-          <Field label="Petsa" value={fields.date ?? ''} onChange={set('date')} placeholder="YYYY-MM-DD" />
-          <Field label="Contact" value={fields.contact ?? ''} onChange={set('contact')} />
+          <Field label={t('sacramentRequest.date')} value={fields.date ?? ''} onChange={set('date')} placeholder="YYYY-MM-DD" />
+          <Field label={t('sacramentRequest.contact')} value={fields.contact ?? ''} onChange={set('contact')} />
         </>}
 
-        <Field label="Mga Tala (opsyonal)" value={fields.notes ?? ''} onChange={set('notes')} multiline />
-        <AppButton label="Isumite ang Kahilingan" onPress={handleSubmit} loading={saving} />
+        <Field label={t('sacramentRequest.notesOptional')} value={fields.notes ?? ''} onChange={set('notes')} multiline />
+        <AppButton label={t('sacramentRequest.submit')} onPress={handleSubmit} loading={saving} />
       </View>
     </ScrollView>
   );

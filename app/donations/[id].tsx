@@ -20,14 +20,15 @@ import { useChurchStore } from '../../store/churchStore';
 import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
 import fundsData from '../../data/donationFunds.json';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 
 const GCASH_STEPS = [
-  { icon: 'phone-portrait-outline' as const, en: 'Open GCash app', fil: 'Buksan ang GCash app' },
-  { icon: 'qr-code-outline' as const, en: 'Tap "Send Money" or scan QR', fil: 'I-tap ang "Send Money" o i-scan ang QR' },
-  { icon: 'keypad-outline' as const, en: 'Enter amount and confirm', fil: 'Ilagay ang halaga at kumpirmahin' },
-  { icon: 'checkmark-circle-outline' as const, en: 'Screenshot your receipt', fil: 'I-screenshot ang inyong resibo' },
+  { icon: 'phone-portrait-outline' as const, textKey: 'donationDetail.gcashStep1' },
+  { icon: 'qr-code-outline' as const, textKey: 'donationDetail.gcashStep2' },
+  { icon: 'keypad-outline' as const, textKey: 'donationDetail.gcashStep3' },
+  { icon: 'checkmark-circle-outline' as const, textKey: 'donationDetail.gcashStep4' },
 ];
 
 export default function DonationDetailScreen() {
@@ -36,6 +37,8 @@ export default function DonationDetailScreen() {
   const logDonation = useChurchStore((s) => s.logDonation);
   const currentUser = useAuthStore((s) => s.currentUser);
   const showToast = useUiStore((s) => s.showToast);
+  const { t, language } = useI18n();
+  const locale = language === 'en' ? 'en-PH' : 'fil-PH';
 
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -45,7 +48,7 @@ export default function DonationDetailScreen() {
 
   const handleSave = useCallback(async () => {
     if (!amount || isNaN(Number(amount))) {
-      showToast('Ilagay ang tamang halaga', 'error');
+      showToast(t('donationDetail.invalidAmount'), 'error');
       return;
     }
     setSaving(true);
@@ -61,16 +64,16 @@ export default function DonationDetailScreen() {
       notes: note,
       isAnonymous: !currentUser,
     });
-    showToast('Naitala ang donasyon!', 'success');
+    showToast(t('donationDetail.savedToast'), 'success');
     setSaving(false);
     router.back();
-  }, [amount, date, note, fund, currentUser, logDonation, showToast]);
+  }, [amount, date, note, fund, currentUser, logDonation, showToast, t]);
 
   if (!fund) {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
         <AppText variant="bodyMd" color={Colors.textMuted} style={{ padding: Spacing.lg }}>
-          Hindi nahanap ang pondo.
+          {t('donationDetail.notFound')}
         </AppText>
       </SafeAreaView>
     );
@@ -81,9 +84,9 @@ export default function DonationDetailScreen() {
   const content = (
     <ScrollView style={styles.screen} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       {/* Back */}
-      <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} accessible accessibilityLabel="Bumalik">
+      <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} accessible accessibilityLabel={t('donationDetail.back')}>
         <Ionicons name="arrow-back" size={20} color={Colors.navy} />
-        <AppText variant="bodyMd" color={Colors.navy}>Bumalik</AppText>
+        <AppText variant="bodyMd" color={Colors.navy}>{t('donationDetail.back')}</AppText>
       </TouchableOpacity>
 
       {/* Fund Info */}
@@ -96,7 +99,7 @@ export default function DonationDetailScreen() {
         <View style={styles.progressLabels}>
           <AppText variant="caption" color={Colors.gold}>{pct}%</AppText>
           <AppText variant="caption" color={Colors.textMuted}>
-            ₱{fund.collected.toLocaleString()} / ₱{fund.goal.toLocaleString()}
+            ₱{fund.collected.toLocaleString(locale)} / ₱{fund.goal.toLocaleString(locale)}
           </AppText>
         </View>
       </View>
@@ -104,7 +107,7 @@ export default function DonationDetailScreen() {
       {/* GCash Steps */}
       <View style={styles.card}>
         <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>
-          Paano Mag-donate via GCash
+          {t('donationDetail.gcashTitle')}
         </AppText>
         {GCASH_STEPS.map((step, i) => (
           <View key={i} style={styles.stepRow}>
@@ -113,8 +116,7 @@ export default function DonationDetailScreen() {
             </View>
             <Ionicons name={step.icon} size={18} color={Colors.gold} style={{ marginRight: Spacing.sm }} />
             <View style={{ flex: 1 }}>
-              <AppText variant="bodyMd" color={Colors.textPrimary}>{step.fil}</AppText>
-              <AppText variant="caption" color={Colors.textMuted}>{step.en}</AppText>
+              <AppText variant="bodyMd" color={Colors.textPrimary}>{t(step.textKey)}</AppText>
             </View>
           </View>
         ))}
@@ -128,18 +130,18 @@ export default function DonationDetailScreen() {
 
       {/* QR Code */}
       <View style={styles.card}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>QR Code</AppText>
+        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>{t('donationDetail.qrTitle')}</AppText>
         <TouchableOpacity
           onPress={() => setQrVisible(true)}
           style={styles.qrWrap}
           accessible
-          accessibilityLabel="I-tap para palakihin ang QR code"
+          accessibilityLabel={t('donationDetail.qrEnlargeA11y')}
         >
           <View style={styles.qrPlaceholder}>
             <Ionicons name="qr-code" size={80} color={Colors.navy} />
           </View>
           <AppText variant="caption" color={Colors.textMuted} style={{ marginTop: Spacing.xs }}>
-            I-tap para palakihin
+            {t('donationDetail.qrEnlarge')}
           </AppText>
         </TouchableOpacity>
       </View>
@@ -147,10 +149,10 @@ export default function DonationDetailScreen() {
       {/* Donation Form */}
       <View style={styles.card}>
         <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>
-          Itala ang Inyong Donasyon
+          {t('donationDetail.formTitle')}
         </AppText>
 
-        <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>Halaga (₱)</AppText>
+        <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>{t('donationDetail.amountLabel')}</AppText>
         <TextInput
           value={amount}
           onChangeText={setAmount}
@@ -159,10 +161,10 @@ export default function DonationDetailScreen() {
           placeholderTextColor={Colors.textMuted}
           style={styles.input}
           accessible
-          accessibilityLabel="Halaga"
+          accessibilityLabel={t('donationDetail.amountA11y')}
         />
 
-        <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>Petsa</AppText>
+        <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>{t('donationDetail.dateLabel')}</AppText>
         <TextInput
           value={date}
           onChangeText={setDate}
@@ -170,30 +172,30 @@ export default function DonationDetailScreen() {
           placeholderTextColor={Colors.textMuted}
           style={styles.input}
           accessible
-          accessibilityLabel="Petsa"
+          accessibilityLabel={t('donationDetail.dateLabel')}
         />
 
-        <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>Tala (opsyonal)</AppText>
+        <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>{t('donationDetail.noteLabel')}</AppText>
         <TextInput
           value={note}
           onChangeText={setNote}
-          placeholder="Halimbawa: Para sa simbahan"
+          placeholder={t('donationDetail.notePlaceholder')}
           placeholderTextColor={Colors.textMuted}
           style={[styles.input, styles.inputMulti]}
           multiline
           numberOfLines={3}
           accessible
-          accessibilityLabel="Tala"
+          accessibilityLabel={t('donationDetail.noteA11y')}
         />
 
-        <AppButton label="I-save ang Donasyon" onPress={handleSave} loading={saving} />
+        <AppButton label={t('donationDetail.save')} onPress={handleSave} loading={saving} />
       </View>
 
       {/* Disclaimer */}
       <View style={styles.infoNote}>
         <Ionicons name="information-circle-outline" size={16} color={Colors.textMuted} />
         <AppText variant="caption" color={Colors.textMuted} style={{ flex: 1, marginLeft: Spacing.xs }}>
-          Ang mga donasyong ito ay self-reported lamang at hindi awtomatikong nabe-verify ng sistema.
+          {t('donationDetail.disclaimer')}
         </AppText>
       </View>
     </ScrollView>
@@ -213,7 +215,7 @@ export default function DonationDetailScreen() {
           style={styles.modalOverlay}
           onPress={() => setQrVisible(false)}
           accessible
-          accessibilityLabel="Isara"
+          accessibilityLabel={t('donationDetail.closeA11y')}
         >
           <View style={styles.modalContent}>
             <Ionicons name="qr-code" size={220} color={Colors.navy} />

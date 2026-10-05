@@ -7,6 +7,7 @@ import { Spacing, Radius } from '../../constants/Layout';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import WebLayout from '../../components/ui/WebLayout';
 import massSchedule from '../../data/massSchedule.json';
+import { useI18n } from '../../i18n';
 
 type MassDay = (typeof massSchedule)[0];
 
@@ -22,6 +23,7 @@ const isWeb = Platform.OS === 'web';
 export default function ScheduleScreen() {
   const { isWeb: isWebBreakpoint } = useBreakpoint();
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const { t, language } = useI18n();
 
   const selectedDay = useMemo(() => {
     return DAYS[new Date(selectedDate + 'T00:00:00').getDay()];
@@ -36,11 +38,15 @@ export default function ScheduleScreen() {
     ({ item }: ListRenderItemInfo<string>) => (
       <View style={styles.timeRow}>
         <Text style={styles.timeText}>{item}</Text>
-        <Text style={styles.massLabel}>Holy Mass</Text>
+        <Text style={styles.massLabel}>{t('massSchedule.holyMass')}</Text>
       </View>
     ),
-    []
+    [t]
   );
+
+  const dayMassesLabel = t('massSchedule.dayMasses', {
+    day: t(`massSchedule.${selectedDay.toLowerCase()}`),
+  });
 
   const calendarTheme = {
     backgroundColor: Colors.cream,
@@ -57,9 +63,10 @@ export default function ScheduleScreen() {
   const webContent = (
     <View style={styles.webLayout}>
       <View style={styles.webLeft}>
-        <Text style={styles.webHeading}>Mass Schedule</Text>
+        <Text style={styles.webHeading}>{t('massSchedule.title')}</Text>
         <View style={styles.calendarCard}>
           <Calendar
+            key={language}
             onDayPress={(day: { dateString: string }) => setSelectedDate(day.dateString)}
             markedDates={{ [selectedDate]: { selected: true, selectedColor: Colors.navy } }}
             theme={calendarTheme}
@@ -67,7 +74,7 @@ export default function ScheduleScreen() {
         </View>
       </View>
       <View style={styles.webRight}>
-        <Text style={styles.webSubHeading}>{selectedDay} Masses</Text>
+        <Text style={styles.webSubHeading}>{dayMassesLabel}</Text>
         {daySchedule ? (
           <FlatList
             data={daySchedule.times}
@@ -76,7 +83,7 @@ export default function ScheduleScreen() {
             scrollEnabled={false}
           />
         ) : (
-          <Text style={styles.emptyText}>No masses scheduled.</Text>
+          <Text style={styles.emptyText}>{t('massSchedule.noMasses')}</Text>
         )}
       </View>
     </View>
@@ -85,15 +92,16 @@ export default function ScheduleScreen() {
   const mobileContent = (
     <ScrollView showsVerticalScrollIndicator={false}>
       <View style={styles.mobileHeader}>
-        <Text style={styles.mobileHeading}>Mass Schedule</Text>
+        <Text style={styles.mobileHeading}>{t('massSchedule.title')}</Text>
       </View>
       <Calendar
+        key={language}
         onDayPress={(day: { dateString: string }) => setSelectedDate(day.dateString)}
         markedDates={{ [selectedDate]: { selected: true, selectedColor: Colors.navy } }}
         theme={calendarTheme}
       />
       <View style={styles.mobileBody}>
-        <Text style={styles.mobileSubHeading}>{selectedDay} Masses</Text>
+        <Text style={styles.mobileSubHeading}>{dayMassesLabel}</Text>
         {daySchedule ? (
           <FlatList
             data={daySchedule.times}
@@ -102,7 +110,7 @@ export default function ScheduleScreen() {
             scrollEnabled={false}
           />
         ) : (
-          <Text style={styles.emptyText}>No masses scheduled.</Text>
+          <Text style={styles.emptyText}>{t('massSchedule.noMasses')}</Text>
         )}
       </View>
     </ScrollView>

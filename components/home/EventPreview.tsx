@@ -6,6 +6,7 @@ import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { AppText, Badge, SectionHeader } from '../ui';
 import { useChurchStore } from '../../store/churchStore';
+import { useI18n } from '../../i18n';
 
 type Event = ReturnType<typeof useChurchStore.getState>['events'][number];
 
@@ -39,6 +40,7 @@ const EventCard = React.memo(({ item }: { item: Event }) => {
 
 const EventPreview = () => {
   const events = useChurchStore((s) => s.events);
+  const { t } = useI18n();
 
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<Event>) => <EventCard item={item} />,
@@ -50,7 +52,7 @@ const EventPreview = () => {
   return (
     <View style={styles.wrap}>
       <View style={styles.header}>
-        <SectionHeader title="Mga Kaganapan" onSeeAll={handleSeeAll} />
+        <SectionHeader title={t('home.events')} onSeeAll={handleSeeAll} />
       </View>
       <FlatList
         data={events}

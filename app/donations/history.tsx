@@ -15,6 +15,7 @@ import WebLayout from '../../components/ui/WebLayout';
 import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { useChurchStore } from '../../store/churchStore';
+import { useI18n } from '../../i18n';
 
 type Donation = ReturnType<typeof useChurchStore.getState>['donations'][number];
 
@@ -23,6 +24,8 @@ const keyExtractor = (item: Donation) => item.id;
 
 export default function DonationHistoryScreen() {
   const donations = useChurchStore((s) => s.donations);
+  const { t, language } = useI18n();
+  const locale = language === 'en' ? 'en-PH' : 'fil-PH';
   const total = donations.reduce((sum, d) => sum + d.amount, 0);
 
   const renderItem = useCallback(({ item }: ListRenderItemInfo<Donation>) => (
@@ -39,27 +42,27 @@ export default function DonationHistoryScreen() {
         )}
       </View>
       <AppText variant="headingSm" color={Colors.gold}>
-        ₱{item.amount.toLocaleString('en-PH')}
+        ₱{item.amount.toLocaleString(locale)}
       </AppText>
     </View>
-  ), []);
+  ), [locale]);
 
   const ListHeader = (
     <>
       <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} accessible accessibilityLabel="Bumalik">
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} accessible accessibilityLabel={t('donationHistory.back')}>
           <Ionicons name="arrow-back" size={20} color={Colors.navy} />
-          <AppText variant="bodyMd" color={Colors.navy}>Bumalik</AppText>
+          <AppText variant="bodyMd" color={Colors.navy}>{t('donationHistory.back')}</AppText>
         </TouchableOpacity>
-        <AppText variant="headingMd" color={Colors.navy}>Kasaysayan ng Donasyon</AppText>
+        <AppText variant="headingMd" color={Colors.navy}>{t('donations.history')}</AppText>
       </View>
 
       <View style={styles.summaryCard}>
         <AppText variant="displaySm" color={Colors.navy}>
-          ₱{total.toLocaleString('en-PH')}
+          ₱{total.toLocaleString(locale)}
         </AppText>
         <AppText variant="bodySm" color={Colors.textMuted}>
-          {donations.length} kabuuang donasyon
+          {t('donationHistory.totalCount', { count: donations.length })}
         </AppText>
       </View>
     </>

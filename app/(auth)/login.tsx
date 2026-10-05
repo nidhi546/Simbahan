@@ -19,10 +19,19 @@ import { Spacing, Radius } from '../../constants/Layout';
 import { AppText, FloatingCross } from '../../components/ui';
 import { useAuthStore } from '../../store/authStore';
 import { a11y } from '../../utils/a11y';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 
+const FEATURE_KEYS = [
+  'login.feature1',
+  'login.feature2',
+  'login.feature3',
+  'login.feature4',
+];
+
 export default function LoginScreen() {
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -33,13 +42,13 @@ export default function LoginScreen() {
 
   const handleLogin = useCallback(async () => {
     if (!email.trim() || !password.trim()) {
-      setError('Please enter your email and password.');
+      setError(t('login.errorMissingFields'));
       return;
     }
     setError('');
     await login();
     router.replace('/home');
-  }, [email, password, login]);
+  }, [email, password, login, t]);
 
   const togglePassword = useCallback(() => setShowPassword((v) => !v), []);
 
@@ -55,14 +64,14 @@ export default function LoginScreen() {
         <Ionicons name="mail-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
         <TextInput
           style={styles.input}
-          placeholder="Email address"
+          placeholder={t('login.emailPlaceholder')}
           placeholderTextColor={Colors.textMuted}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
           {...a11y}
-          accessibilityLabel="Email address"
+          accessibilityLabel={t('login.emailPlaceholder')}
         />
       </View>
 
@@ -70,18 +79,18 @@ export default function LoginScreen() {
         <Ionicons name="lock-closed-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
         <TextInput
           style={StyleSheet.flatten([styles.input, styles.inputFlex])}
-          placeholder="Password"
+          placeholder={t('auth.password')}
           placeholderTextColor={Colors.textMuted}
           value={password}
           onChangeText={setPassword}
           secureTextEntry={!showPassword}
           {...a11y}
-          accessibilityLabel="Password"
+          accessibilityLabel={t('auth.password')}
         />
         <TouchableOpacity
           onPress={togglePassword}
           {...a11y}
-          accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+          accessibilityLabel={showPassword ? t('auth.hidePasswordA11y') : t('auth.showPasswordA11y')}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Ionicons
@@ -92,25 +101,25 @@ export default function LoginScreen() {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.forgotWrap} {...a11y} accessibilityLabel="Forgot password">
-        <AppText variant="bodySm" color={Colors.navy}>Forgot password?</AppText>
+      <TouchableOpacity style={styles.forgotWrap} {...a11y} accessibilityLabel={t('login.forgotPasswordA11y')}>
+        <AppText variant="bodySm" color={Colors.navy}>{t('login.forgotPassword')}</AppText>
       </TouchableOpacity>
 
       <TouchableOpacity
         onPress={handleLogin}
         style={styles.loginBtn}
         {...a11y}
-        accessibilityLabel="Sign in"
+        accessibilityLabel={t('auth.signInLower')}
         activeOpacity={0.8}
       >
         <AppText variant="label" color={Colors.textInverse} style={styles.loginBtnText}>
-          Sign In
+          {t('auth.signIn')}
         </AppText>
       </TouchableOpacity>
 
       <View style={styles.dividerRow}>
         <View style={styles.dividerLine} />
-        <AppText variant="caption" color={Colors.textMuted} style={styles.dividerLabel}>or</AppText>
+        <AppText variant="caption" color={Colors.textMuted} style={styles.dividerLabel}>{t('common.or')}</AppText>
         <View style={styles.dividerLine} />
       </View>
 
@@ -118,23 +127,23 @@ export default function LoginScreen() {
         style={styles.googleBtn}
         disabled
         {...a11y}
-        accessibilityLabel="Continue with Google (unavailable)"
+        accessibilityLabel={t('login.googleUnavailableA11y')}
         activeOpacity={0.8}
       >
         <Ionicons name="logo-google" size={18} color={Colors.textSecondary} />
         <AppText variant="bodyMd" color={Colors.textSecondary} style={styles.googleText}>
-          Continue with Google
+          {t('login.continueWithGoogle')}
         </AppText>
       </TouchableOpacity>
 
       <View style={styles.registerRow}>
-        <AppText variant="bodySm" color={Colors.textMuted}>Don't have an account? </AppText>
+        <AppText variant="bodySm" color={Colors.textMuted}>{t('auth.noAccount')}{' '}</AppText>
         <TouchableOpacity
           onPress={() => router.push('/(auth)/register')}
           {...a11y}
-          accessibilityLabel="Create account"
+          accessibilityLabel={t('auth.createAccountA11y')}
         >
-          <AppText variant="bodySm" color={Colors.navy}>Create one</AppText>
+          <AppText variant="bodySm" color={Colors.navy}>{t('login.createOne')}</AppText>
         </TouchableOpacity>
       </View>
     </>
@@ -156,19 +165,14 @@ export default function LoginScreen() {
                   Simbahan
                 </AppText>
                 <AppText variant="bodyLg" color={Colors.goldLight} style={webStyles.brandSub}>
-                  Your parish, in your pocket
+                  {t('auth.tagline')}
                 </AppText>
                 <View style={webStyles.featureList}>
-                  {[
-                    'Daily Mass readings & Gospel',
-                    'Parish announcements & events',
-                    'Novenas, prayers & devotions',
-                    'Community directory & family',
-                  ].map((f) => (
+                  {FEATURE_KEYS.map((f) => (
                     <View key={f} style={webStyles.featureRow}>
                       <Ionicons name="checkmark-circle" size={16} color={Colors.gold} />
                       <AppText variant="bodySm" color={Colors.textInverse} style={{ marginLeft: 8, opacity: 0.9 }}>
-                        {f}
+                        {t(f)}
                       </AppText>
                     </View>
                   ))}
@@ -177,11 +181,11 @@ export default function LoginScreen() {
               <TouchableOpacity
                 onPress={() => router.replace('/(public)')}
                 style={webStyles.backLink}
-                accessibilityLabel="Back to homepage"
+                accessibilityLabel={t('auth.backToHomepageA11y')}
               >
                 <Ionicons name="arrow-back" size={14} color={Colors.goldLight} />
                 <AppText variant="caption" color={Colors.goldLight} style={{ marginLeft: 4 }}>
-                  Back to Homepage
+                  {t('auth.backToHomepage')}
                 </AppText>
               </TouchableOpacity>
             </GradientView>
@@ -194,10 +198,10 @@ export default function LoginScreen() {
               >
                 <View style={webStyles.card}>
                   <AppText variant="displaySm" color={Colors.navy} style={webStyles.cardTitle}>
-                    Welcome back
+                    {t('login.welcomeBack')}
                   </AppText>
                   <AppText variant="bodySm" color={Colors.textMuted} style={webStyles.cardSub}>
-                    Sign in to your parish account
+                    {t('auth.loginSubtitle')}
                   </AppText>
                   {FormContent}
                 </View>
@@ -212,17 +216,17 @@ export default function LoginScreen() {
           >
             <GradientView colors={[Colors.navyDark, Colors.navy]} style={webStyles.tabletHeader}>
               <AppText variant="displaySm" color={Colors.textInverse}>✝ Simbahan</AppText>
-              <AppText variant="bodySm" color={Colors.goldLight}>Your parish, in your pocket</AppText>
+              <AppText variant="bodySm" color={Colors.goldLight}>{t('auth.tagline')}</AppText>
             </GradientView>
             <View style={webStyles.tabletCard}>
-              <AppText variant="headingMd" color={Colors.navy} style={webStyles.cardTitle}>Sign In</AppText>
+              <AppText variant="headingMd" color={Colors.navy} style={webStyles.cardTitle}>{t('auth.signIn')}</AppText>
               {FormContent}
               <TouchableOpacity
                 onPress={() => router.replace('/(public)')}
                 style={styles.backToHome}
-                accessibilityLabel="Back to homepage"
+                accessibilityLabel={t('auth.backToHomepageA11y')}
               >
-                <AppText variant="caption" color={Colors.textMuted}>← Back to Homepage</AppText>
+                <AppText variant="caption" color={Colors.textMuted}>← {t('auth.backToHomepage')}</AppText>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -244,7 +248,7 @@ export default function LoginScreen() {
             Simbahan
           </AppText>
           <AppText variant="bodyMd" color={Colors.goldLight} style={styles.tagline}>
-            Your parish, in your pocket
+            {t('auth.tagline')}
           </AppText>
         </GradientView>
 
@@ -255,7 +259,7 @@ export default function LoginScreen() {
             contentContainerStyle={styles.form}
           >
             <AppText variant="headingMd" color={Colors.navy} style={styles.formTitle}>
-              Sign In
+              {t('auth.signIn')}
             </AppText>
             {FormContent}
           </ScrollView>

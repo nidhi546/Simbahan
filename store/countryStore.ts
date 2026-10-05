@@ -132,14 +132,19 @@ export const useCountryStore = create<CountryState>((set) => ({
       AsyncStorage.getItem(KEY_LANGUAGE),
     ]);
 
-    // If country selection is disabled, always default to Philippines
+    const language = (languageRaw as LanguageCode | null) ?? 'fil';
+
+    // If country selection is disabled, always default to Philippines,
+    // but keep the user's saved language choice.
     if (!ENABLE_COUNTRY_SELECTION) {
-      set({ country: 'PH', language: 'fil', isHydrated: true });
+      const phLanguage = COUNTRIES.PH.availableLanguages.some((l) => l.code === language)
+        ? language
+        : COUNTRIES.PH.defaultLanguage;
+      set({ country: 'PH', language: phLanguage, isHydrated: true });
       return;
     }
 
     const country  = (countryRaw  as CountryCode  | null) ?? null;
-    const language = (languageRaw as LanguageCode | null) ?? 'fil';
 
     set({ country, language, isHydrated: true });
   },

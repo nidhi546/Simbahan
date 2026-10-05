@@ -15,3 +15,4 @@ export { default as Toast } from './Toast';
 export { default as AnnouncementCard } from './AnnouncementCard';
 export { default as EventCard } from './EventCard';
 export { default as Img } from './Img';
+export { default as LanguageToggle } from './LanguageToggle';

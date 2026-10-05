@@ -11,20 +11,22 @@ import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { useModule10Store, Notification, NotifType } from '../../store/module10Store';
 import BackBar from '../../components/ui/BackBar';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 
-const FILTERS: { label: string; key: 'all' | NotifType }[] = [
-  { label: 'Lahat',      key: 'all'          },
-  { label: 'Hindi Nabasa', key: 'general'    },
-  { label: 'Anunsyo',    key: 'announcement' },
-  { label: 'Kaganapan',  key: 'event'        },
-  { label: 'Sakramento', key: 'sacrament'    },
+const FILTERS: { labelKey: string; key: 'all' | NotifType }[] = [
+  { labelKey: 'notifications.filterAll', key: 'all'          },
+  { labelKey: 'notifications.filterUnread', key: 'general'    },
+  { labelKey: 'notifications.filterAnnouncement', key: 'announcement' },
+  { labelKey: 'notifications.filterEvent', key: 'event'        },
+  { labelKey: 'notifications.filterSacrament', key: 'sacrament'    },
 ];
 
 const keyExtractor = (item: Notification) => item.id;
 
 export default function NotificationsScreen() {
+  const { t } = useI18n();
   const notifications = useModule10Store((s) => s.notifications);
   const markNotifRead = useModule10Store((s) => s.markNotifRead);
   const markAllRead   = useModule10Store((s) => s.markAllRead);
@@ -49,20 +51,20 @@ export default function NotificationsScreen() {
      <BackBar />
       <GradientView colors={[Colors.navyDark, Colors.navy]} style={[styles.header, { marginHorizontal: -Spacing.md }]}>
         <View style={styles.headerRow}>
-          <AppText variant="displaySm" color={Colors.textInverse}>Mga Abiso</AppText>
+          <AppText variant="displaySm" color={Colors.textInverse}>{t('notifications.title')}</AppText>
           {unreadCount > 0 && (
             <TouchableOpacity
               onPress={markAllRead}
               style={styles.markAllBtn}
               accessible
-              accessibilityLabel="Markahan lahat bilang nabasa"
+              accessibilityLabel={t('notifications.markAllA11y')}
             >
-              <AppText variant="label" color={Colors.goldLight}>Markahan lahat</AppText>
+              <AppText variant="label" color={Colors.goldLight}>{t('notifications.markAll')}</AppText>
             </TouchableOpacity>
           )}
         </View>
         {unreadCount > 0 && (
-          <AppText variant="bodySm" color={Colors.goldLight}>{unreadCount} hindi pa nabasa</AppText>
+          <AppText variant="bodySm" color={Colors.goldLight}>{t('notifications.unreadCount', { count: unreadCount })}</AppText>
         )}
       </GradientView>
 
@@ -74,10 +76,10 @@ export default function NotificationsScreen() {
             onPress={() => setFilter(f.key as any)}
             style={[styles.filterChip, filter === f.key && styles.filterChipActive]}
             accessible
-            accessibilityLabel={f.label}
+            accessibilityLabel={t(f.labelKey)}
           >
             <AppText variant="label" color={filter === f.key ? Colors.textInverse : Colors.textMuted}>
-              {f.label}
+              {t(f.labelKey)}
             </AppText>
           </TouchableOpacity>
         ))}
@@ -94,8 +96,8 @@ export default function NotificationsScreen() {
       ListEmptyComponent={
         <EmptyState
           icon="notifications-off-outline"
-          title="Walang abiso"
-          message="Wala pang mga abiso sa kategoryang ito."
+          title={t('notifications.emptyTitle')}
+          message={t('notifications.emptyMessage')}
         />
       }
       contentContainerStyle={styles.listContent}

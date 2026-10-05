@@ -5,14 +5,17 @@ import { router } from 'expo-router';
 import AppText from './AppText';
 import { Spacing } from '../../constants/Layout';
 import { useTheme } from '../../theme/ThemeContext';
+import { useI18n } from '../../i18n';
 
 interface BackBarProps {
   label?: string;
   onBack?: () => void;
 }
 
-const BackBar = ({ label = 'Higit Pa', onBack }: BackBarProps) => {
+const BackBar = ({ label: labelProp, onBack }: BackBarProps) => {
   const { theme } = useTheme();
+  const { t } = useI18n();
+  const label = labelProp ?? t('nav.menuMore');
 
   const handleBack = useCallback(() => {
     if (onBack) { onBack(); return; }
@@ -30,7 +33,7 @@ const BackBar = ({ label = 'Higit Pa', onBack }: BackBarProps) => {
         style={styles.btn}
         activeOpacity={0.7}
         accessible
-        accessibilityLabel={`Bumalik sa ${label}`}
+        accessibilityLabel={t('ui.backTo', { label })}
         accessibilityRole="button"
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >

@@ -12,14 +12,16 @@ import GradientView from '../../components/ui/GradientView';
 import { useChurchStore, RsvpStatus } from '../../store/churchStore';
 import { useUiStore } from '../../store/uiStore';
 import { formatEventDate, formatTime } from '../../utils/dateHelpers';
+import { useI18n } from '../../i18n';
 
-const RSVP_OPTIONS: { status: RsvpStatus; label: string; icon: React.ComponentProps<typeof Ionicons>['name']; color: string }[] = [
-  { status: 'Pupunta', label: '✓ Pupunta', icon: 'checkmark-circle-outline', color: Colors.sage },
-  { status: 'Baka', label: '? Baka', icon: 'help-circle-outline', color: Colors.gold },
-  { status: 'Hindi', label: '✗ Hindi', icon: 'close-circle-outline', color: Colors.crimson },
+const RSVP_OPTIONS: { status: RsvpStatus; labelKey: string; icon: React.ComponentProps<typeof Ionicons>['name']; color: string }[] = [
+  { status: 'Pupunta', labelKey: 'events.rsvpGoing', icon: 'checkmark-circle-outline', color: Colors.sage },
+  { status: 'Baka', labelKey: 'events.rsvpMaybe', icon: 'help-circle-outline', color: Colors.gold },
+  { status: 'Hindi', labelKey: 'events.rsvpNotGoing', icon: 'close-circle-outline', color: Colors.crimson },
 ];
 
 export default function EventDetail() {
+  const { t, language } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const events = useChurchStore((s) => s.events);
   const setEventRsvp = useChurchStore((s) => s.setEventRsvp);
@@ -31,14 +33,14 @@ export default function EventDetail() {
 
   const handleRsvp = useCallback((status: RsvpStatus) => {
     setEventRsvp(id, status);
-    showToast('Nai-save ang iyong RSVP!', 'success');
-  }, [id, setEventRsvp, showToast]);
+    showToast(t('events.rsvpSaved'), 'success');
+  }, [id, setEventRsvp, showToast, t]);
 
   const handleShare = useCallback(async () => {
     if (!item) return;
     await Share.share({
       title: item.title,
-      message: `${item.title}\n📅 ${formatEventDate(item.date)} ${item.time}\n📍 ${item.location}\n\n– San Bartolome Parish`,
+      message: `${item.title}\n📅 ${formatEventDate(item.date, language)} ${item.time}\n📍 ${item.location}\n\n– San Bartolome Parish`,
     });
   }, [item]);
 
@@ -49,9 +51,9 @@ export default function EventDetail() {
   if (!item) {
     return (
       <SafeAreaView style={styles.center}>
-        <AppText variant="bodyMd" color={Colors.textMuted}>Hindi mahanap ang event.</AppText>
+        <AppText variant="bodyMd" color={Colors.textMuted}>{t('events.notFound')}</AppText>
         <TouchableOpacity onPress={handleBack} style={{ marginTop: Spacing.md }}>
-          <AppText variant="label" color={Colors.navy}>← Bumalik</AppText>
+          <AppText variant="label" color={Colors.navy}>{t('events.backLink')}</AppText>
         </TouchableOpacity>
       </SafeAreaView>
     );
@@ -62,7 +64,7 @@ export default function EventDetail() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       {/* Back button */}
-      <TouchableOpacity onPress={handleBack} style={styles.backBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+      <TouchableOpacity onPress={handleBack} style={styles.backBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityLabel={t('events.backA11y')}>
         <Ionicons name="chevron-back" size={24} color={Colors.textInverse} />
       </TouchableOpacity>
 
@@ -86,7 +88,7 @@ export default function EventDetail() {
             <View style={styles.dateRow}>
               <Ionicons name="calendar-outline" size={16} color={Colors.gold} />
               <AppText variant="bodyMd" color={Colors.textPrimary} style={styles.dateText}>
-                {formatEventDate(item.date)}
+                {formatEventDate(item.date, language)}
               </AppText>
             </View>
             <View style={styles.dateRow}>
@@ -106,7 +108,7 @@ export default function EventDetail() {
 
           {/* 2. Description */}
           <AppText variant="headingMd" color={Colors.navy} style={styles.sectionTitle}>
-            Tungkol sa Event
+            {t('events.about')}
           </AppText>
           <AppText variant="bodyLg" color={Colors.textPrimary} style={styles.description}>
             {item.description}
@@ -114,7 +116,7 @@ export default function EventDetail() {
 
           {/* 3. Contact Block */}
           <AppText variant="headingMd" color={Colors.navy} style={styles.sectionTitle}>
-            Para sa mga katanungan:
+            {t('events.inquiries')}
           </AppText>
           <View style={styles.contactBlock}>
             <View style={styles.avatar}>
@@ -134,24 +136,24 @@ export default function EventDetail() {
           {item.rsvpEnabled && (
             <View style={styles.rsvpSection}>
               <AppText variant="headingMd" color={Colors.navy} style={styles.sectionTitle}>
-                RSVP
+                {t('events.rsvp')}
               </AppText>
               <View style={styles.rsvpCounts}>
                 <View style={styles.rsvpCount}>
                   <AppText variant="headingMd" color={Colors.sage}>143</AppText>
-                  <AppText variant="caption" color={Colors.textMuted}>Pupunta</AppText>
+                  <AppText variant="caption" color={Colors.textMuted}>{t('events.countGoing')}</AppText>
                 </View>
                 <View style={styles.rsvpCount}>
                   <AppText variant="headingMd" color={Colors.gold}>34</AppText>
-                  <AppText variant="caption" color={Colors.textMuted}>Baka</AppText>
+                  <AppText variant="caption" color={Colors.textMuted}>{t('events.countMaybe')}</AppText>
                 </View>
                 <View style={styles.rsvpCount}>
                   <AppText variant="headingMd" color={Colors.crimson}>12</AppText>
-                  <AppText variant="caption" color={Colors.textMuted}>Hindi</AppText>
+                  <AppText variant="caption" color={Colors.textMuted}>{t('events.countNotGoing')}</AppText>
                 </View>
               </View>
               <View style={styles.rsvpBtns}>
-                {RSVP_OPTIONS.map(({ status, label, color }) => (
+                {RSVP_OPTIONS.map(({ status, labelKey, color }) => (
                   <TouchableOpacity
                     key={status}
                     onPress={() => handleRsvp(status)}
@@ -161,13 +163,13 @@ export default function EventDetail() {
                       item.rsvpStatus === status && { backgroundColor: color },
                     ])}
                     accessible
-                    accessibilityLabel={label}
+                    accessibilityLabel={t(labelKey)}
                   >
                     <AppText
                       variant="label"
                       color={item.rsvpStatus === status ? Colors.textInverse : color}
                     >
-                      {label}
+                      {t(labelKey)}
                     </AppText>
                   </TouchableOpacity>
                 ))}
@@ -176,10 +178,10 @@ export default function EventDetail() {
           )}
 
           {/* 5. Share Button */}
-          <TouchableOpacity onPress={handleShare} style={styles.shareBtn} accessible accessibilityLabel="Ibahagi">
+          <TouchableOpacity onPress={handleShare} style={styles.shareBtn} accessible accessibilityLabel={t('events.shareA11y')}>
             <Ionicons name="share-outline" size={18} color={Colors.navy} />
             <AppText variant="label" color={Colors.navy} style={{ marginLeft: Spacing.xs }}>
-              Ibahagi ang event na ito
+              {t('events.share')}
             </AppText>
           </TouchableOpacity>
         </View>

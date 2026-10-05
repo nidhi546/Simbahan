@@ -7,26 +7,35 @@ import AppText from '../../components/ui/AppText';
 import WebLayout from '../../components/ui/WebLayout';
 import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 
-const MYSTERIES: Record<string, { label: string; mysteries: string[] }> = {
-  Sunday:    { label: 'Glorious Mysteries',  mysteries: ['Resurrection','Ascension','Descent of Holy Spirit','Assumption of Mary','Coronation of Mary'] },
-  Monday:    { label: 'Joyful Mysteries',    mysteries: ['Annunciation','Visitation','Nativity','Presentation','Finding in Temple'] },
-  Tuesday:   { label: 'Sorrowful Mysteries', mysteries: ['Agony in Garden','Scourging','Crowning with Thorns','Carrying the Cross','Crucifixion'] },
-  Wednesday: { label: 'Glorious Mysteries',  mysteries: ['Resurrection','Ascension','Descent of Holy Spirit','Assumption of Mary','Coronation of Mary'] },
-  Thursday:  { label: 'Luminous Mysteries',  mysteries: ['Baptism of Jesus','Wedding at Cana','Proclamation of Kingdom','Transfiguration','Institution of Eucharist'] },
-  Friday:    { label: 'Sorrowful Mysteries', mysteries: ['Agony in Garden','Scourging','Crowning with Thorns','Carrying the Cross','Crucifixion'] },
-  Saturday:  { label: 'Joyful Mysteries',    mysteries: ['Annunciation','Visitation','Nativity','Presentation','Finding in Temple'] },
+const mysteryKeys = (set: string) => [1, 2, 3, 4, 5].map((n) => `rosary.${set}.m${n}`);
+const MYSTERY_SETS = {
+  glorious:  { labelKey: 'rosary.glorious.label',  mysteryKeys: mysteryKeys('glorious') },
+  joyful:    { labelKey: 'rosary.joyful.label',    mysteryKeys: mysteryKeys('joyful') },
+  sorrowful: { labelKey: 'rosary.sorrowful.label', mysteryKeys: mysteryKeys('sorrowful') },
+  luminous:  { labelKey: 'rosary.luminous.label',  mysteryKeys: mysteryKeys('luminous') },
+};
+
+const MYSTERIES: Record<string, { labelKey: string; mysteryKeys: string[] }> = {
+  Sunday:    MYSTERY_SETS.glorious,
+  Monday:    MYSTERY_SETS.joyful,
+  Tuesday:   MYSTERY_SETS.sorrowful,
+  Wednesday: MYSTERY_SETS.glorious,
+  Thursday:  MYSTERY_SETS.luminous,
+  Friday:    MYSTERY_SETS.sorrowful,
+  Saturday:  MYSTERY_SETS.joyful,
 };
 
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const today = DAYS[new Date().getDay()];
 
 const SECTIONS = [
-  { id: 'opening', label: 'Mga Pambungad na Panalangin', content: "Apostles' Creed, Our Father, 3 Hail Marys, Glory Be" },
-  { id: 'decades', label: 'Sampung Butil (Decades)', content: 'Para sa bawat misteryo: Our Father × 1, Hail Mary × 10, Glory Be × 1, Fatima Prayer × 1' },
-  { id: 'closing', label: 'Mga Pangwakas na Panalangin', content: 'Hail Holy Queen (Salve Regina), Litany of the Blessed Virgin Mary' },
+  { id: 'opening', labelKey: 'rosary.sectionOpening', contentKey: 'rosary.sectionOpeningContent' },
+  { id: 'decades', labelKey: 'rosary.sectionDecades', contentKey: 'rosary.sectionDecadesContent' },
+  { id: 'closing', labelKey: 'rosary.sectionClosing', contentKey: 'rosary.sectionClosingContent' },
 ];
 
 function AccordionSection({ label, content }: { label: string; content: string }) {
@@ -52,18 +61,19 @@ function AccordionSection({ label, content }: { label: string; content: string }
 }
 
 export default function RosaryScreen() {
+  const { t } = useI18n();
   const [selectedDay, setSelectedDay] = useState(today);
   const mystery = MYSTERIES[selectedDay];
 
   const content = (
     <ScrollView style={styles.screen} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} accessible accessibilityLabel="Bumalik">
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} accessible accessibilityLabel={t('common.back')}>
           <Ionicons name="arrow-back" size={20} color={Colors.navy} />
         </TouchableOpacity>
         <View>
-          <AppText variant="displaySm" color={Colors.navy}>Rosaryo</AppText>
-          <AppText variant="bodySm" color={Colors.textMuted}>The Holy Rosary</AppText>
+          <AppText variant="displaySm" color={Colors.navy}>{t('rosary.title')}</AppText>
+          <AppText variant="bodySm" color={Colors.textMuted}>{t('rosary.subtitle')}</AppText>
         </View>
       </View>
 
@@ -75,10 +85,10 @@ export default function RosaryScreen() {
             onPress={() => setSelectedDay(d)}
             style={[styles.dayChip, selectedDay === d && styles.dayChipActive]}
             accessible
-            accessibilityLabel={d}
+            accessibilityLabel={t(`rosary.days.${d.toLowerCase()}`)}
           >
             <AppText variant="label" color={selectedDay === d ? Colors.textInverse : Colors.textMuted}>
-              {d.slice(0, 3)}
+              {t(`rosary.daysShort.${d.toLowerCase()}`)}
             </AppText>
           </TouchableOpacity>
         ))}
@@ -88,23 +98,23 @@ export default function RosaryScreen() {
       <View style={styles.mysteryCard}>
         <View style={styles.mysteryHeader}>
           <Ionicons name="ellipse-outline" size={20} color={Colors.gold} />
-          <AppText variant="headingMd" color={Colors.navy}>{mystery.label}</AppText>
+          <AppText variant="headingMd" color={Colors.navy}>{t(mystery.labelKey)}</AppText>
         </View>
-        {mystery.mysteries.map((m, i) => (
+        {mystery.mysteryKeys.map((m, i) => (
           <View key={m} style={styles.mysteryRow}>
             <View style={styles.mysteryNum}>
               <AppText variant="label" color={Colors.textInverse}>{i + 1}</AppText>
             </View>
-            <AppText variant="bodyMd" color={Colors.textPrimary}>{m}</AppText>
+            <AppText variant="bodyMd" color={Colors.textPrimary}>{t(m)}</AppText>
           </View>
         ))}
       </View>
 
       {/* Accordion sections */}
       <View style={styles.section}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>Mga Bahagi ng Rosaryo</AppText>
+        <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>{t('rosary.partsTitle')}</AppText>
         {SECTIONS.map((s) => (
-          <AccordionSection key={s.id} label={s.label} content={s.content} />
+          <AccordionSection key={s.id} label={t(s.labelKey)} content={t(s.contentKey)} />
         ))}
       </View>
     </ScrollView>

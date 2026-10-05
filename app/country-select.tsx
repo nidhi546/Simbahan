@@ -27,10 +27,12 @@ import {
   COUNTRIES,
   CountryCode,
 } from '../store/countryStore';
+import { useI18n } from '../i18n';
 
 const COUNTRY_LIST: CountryCode[] = ['PH', 'IN'];
 
 export default function CountrySelectScreen() {
+  const { t } = useI18n();
   const setCountry = useCountryStore((s) => s.setCountry);
   const [selected, setSelected] = useState<CountryCode | null>(null);
   const [saving, setSaving] = useState(false);
@@ -61,11 +63,10 @@ export default function CountrySelectScreen() {
           <Ionicons name="globe-outline" size={32} color={Colors.textInverse} />
         </View>
         <AppText variant="displaySm" color={Colors.navy} style={styles.title}>
-          Select Your Country
+          {t('countrySelect.title')}
         </AppText>
         <AppText variant="bodyMd" color={Colors.textSecondary} style={styles.subtitle}>
-          Choose the country where your parish is located.{'\n'}
-          You can change this later in Settings.
+          {t('countrySelect.subtitleMultiline')}
         </AppText>
       </View>
 
@@ -86,7 +87,7 @@ export default function CountrySelectScreen() {
               accessible
               accessibilityRole="radio"
               accessibilityState={{ selected: isSelected }}
-              accessibilityLabel={`Select ${config?.name}`}
+              accessibilityLabel={t('countrySelect.selectCountryA11y', { country: t(`countrySelect.countries.${code}`) })}
               style={[
                 styles.card,
                 isSelected && styles.cardSelected,
@@ -100,7 +101,7 @@ export default function CountrySelectScreen() {
                     variant="headingSm"
                     color={isSelected ? Colors.navy : Colors.textPrimary}
                   >
-                    {config?.name}
+                    {t(`countrySelect.countries.${code}`)}
                   </AppText>
                   <AppText variant="bodySm" color={Colors.textMuted}>
                     {config?.availableLanguages?.map((l) => l.nativeName).join(' · ')}
@@ -132,7 +133,7 @@ export default function CountrySelectScreen() {
           activeOpacity={0.85}
           accessible
           accessibilityRole="button"
-          accessibilityLabel="Continue"
+          accessibilityLabel={t('countrySelect.continue')}
           accessibilityState={{ disabled: !selected || saving }}
           style={[
             styles.btn,
@@ -141,12 +142,12 @@ export default function CountrySelectScreen() {
         >
           {saving ? (
             <AppText variant="label" color={Colors.textInverse}>
-              Please wait…
+              {t('countrySelect.pleaseWait')}
             </AppText>
           ) : (
             <>
               <AppText variant="label" color={Colors.textInverse} style={styles.btnText}>
-                Continue
+                {t('countrySelect.continue')}
               </AppText>
               <Ionicons name="arrow-forward" size={18} color={Colors.textInverse} />
             </>

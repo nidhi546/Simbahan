@@ -8,6 +8,7 @@ import { Spacing, Radius } from '../../constants/Layout';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import WebLayout from '../../components/ui/WebLayout';
 import parish from '../../data/parish.json';
+import { useI18n } from '../../i18n';
 
 const Fonts = {
   heading: 'PlayfairDisplay_700Bold',
@@ -39,16 +40,17 @@ const isWeb = Platform.OS === 'web';
 
 export default function ParishScreen() {
   const { isWeb: isWebBreakpoint } = useBreakpoint();
+  const { t } = useI18n();
   const callParish = () => Linking.openURL(`tel:${parish.phone}`);
   const emailParish = () => Linking.openURL(`mailto:${parish.email}`);
 
   const infoRows = (
     <>
-      <InfoRow icon="person" label="Parish Priest" value={parish.pastor} />
-      <InfoRow icon="location" label="Address" value={parish.address} />
-      <InfoRow icon="call" label="Phone" value={parish.phone} onPress={callParish} />
-      <InfoRow icon="mail" label="Email" value={parish.email} onPress={emailParish} />
-      <InfoRow icon="time" label="Office Hours" value={parish.officeHours} />
+      <InfoRow icon="person" label={t('parish.parishPriest')} value={parish.pastor} />
+      <InfoRow icon="location" label={t('parish.address')} value={parish.address} />
+      <InfoRow icon="call" label={t('parish.phone')} value={parish.phone} onPress={callParish} />
+      <InfoRow icon="mail" label={t('parish.email')} value={parish.email} onPress={emailParish} />
+      <InfoRow icon="time" label={t('parish.officeHours')} value={parish.officeHours} />
     </>
   );
 
@@ -67,20 +69,20 @@ export default function ParishScreen() {
             {infoRows}
           </View>
           <View style={styles.webSidebar}>
-            <Text style={styles.connectTitle}>Connect With Us</Text>
+            <Text style={styles.connectTitle}>{t('parish.connectWithUs')}</Text>
             <Pressable
               onPress={() => Linking.openURL(parish.socialLinks.facebook)}
               style={styles.socialRow}
             >
               <Ionicons name="logo-facebook" size={20} color="#1877F2" />
-              <Text style={styles.socialText}>Facebook Page</Text>
+              <Text style={styles.socialText}>{t('parish.facebookPage')}</Text>
             </Pressable>
             <Pressable
               onPress={() => Linking.openURL(parish.socialLinks.youtube)}
               style={styles.socialRow}
             >
               <Ionicons name="logo-youtube" size={20} color="#FF0000" />
-              <Text style={styles.socialText}>YouTube Channel</Text>
+              <Text style={styles.socialText}>{t('parish.youtubeChannel')}</Text>
             </Pressable>
           </View>
         </View>

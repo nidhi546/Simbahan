@@ -10,11 +10,13 @@ import AppText from '../../components/ui/AppText';
 import Badge from '../../components/ui/Badge';
 import { useChurchStore } from '../../store/churchStore';
 import { formatEventDate } from '../../utils/dateHelpers';
+import { useI18n } from '../../i18n';
 
 export default function AnnouncementDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const announcements = useChurchStore((s) => s.announcements);
   const markRead = useChurchStore((s) => s.markAnnouncementAsRead);
+  const { t, language } = useI18n();
 
   const item = announcements.find((a) => a.id === id);
 
@@ -36,9 +38,9 @@ export default function AnnouncementDetail() {
   if (!item) {
     return (
       <SafeAreaView style={styles.center}>
-        <AppText variant="bodyMd" color={Colors.textMuted}>Hindi mahanap ang anunsyo.</AppText>
+        <AppText variant="bodyMd" color={Colors.textMuted}>{t('announcements.notFound')}</AppText>
         <TouchableOpacity onPress={handleBack} style={{ marginTop: Spacing.md }}>
-          <AppText variant="label" color={Colors.navy}>← Bumalik</AppText>
+          <AppText variant="label" color={Colors.navy}>{t('announcements.back')}</AppText>
         </TouchableOpacity>
       </SafeAreaView>
     );
@@ -67,7 +69,7 @@ export default function AnnouncementDetail() {
           {/* Category + date */}
           <View style={styles.metaRow}>
             <Badge label={item.category} variant="gold" size="md" />
-            <AppText variant="bodySm" color={Colors.textMuted}>{formatEventDate(item.date)}</AppText>
+            <AppText variant="bodySm" color={Colors.textMuted}>{formatEventDate(item.date, language)}</AppText>
           </View>
 
           {/* Title */}
@@ -77,7 +79,7 @@ export default function AnnouncementDetail() {
 
           {/* Posted by */}
           <AppText variant="bodySm" color={Colors.textMuted} style={styles.author}>
-            Inilathala ni {item.author}
+            {t('announcements.postedBy', { author: item.author })}
           </AppText>
 
           {/* Gold divider */}
@@ -93,7 +95,7 @@ export default function AnnouncementDetail() {
             <View style={styles.pinnedBox}>
               <Ionicons name="pin" size={14} color={Colors.gold} />
               <AppText variant="bodySm" color={Colors.gold} style={{ marginLeft: 4 }}>
-                Naka-pin ng admin
+                {t('announcements.pinnedByAdmin')}
               </AppText>
             </View>
           )}

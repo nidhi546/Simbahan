@@ -19,6 +19,7 @@ import { Typography } from '../../constants/Typography';
 import { Spacing, Radius } from '../../constants/Layout';
 import { AppText, Card, Badge } from '../../components/ui';
 import { useAuthStore } from '../../store/authStore';
+import { useI18n } from '../../i18n';
 
 const DEMO_CHURCHES = [
   {
@@ -50,6 +51,7 @@ const DEMO_CHURCHES = [
 type Church = typeof DEMO_CHURCHES[number];
 
 export default function JoinChurchScreen() {
+  const { t } = useI18n();
   const [query, setQuery] = useState('');
   const [selectedChurch, setSelectedChurch] = useState<Church | null>(null);
   const [message, setMessage] = useState('');
@@ -104,21 +106,21 @@ export default function JoinChurchScreen() {
           </View>
           <AppText variant="caption" color={Colors.textMuted}>{item.diocese}</AppText>
           <View style={styles.churchFooter}>
-            <Badge label={`${item.members.toLocaleString()} members`} variant="navy" />
+            <Badge label={t('joinChurch.members', { count: item.members.toLocaleString() })} variant="navy" />
             <TouchableOpacity
               onPress={() => handleRequest(item)}
               style={styles.requestBtn}
               accessible
-              accessibilityLabel={`Request to join ${item.name}`}
+              accessibilityLabel={t('joinChurch.requestToJoinA11y', { church: item.name })}
               activeOpacity={0.8}
             >
-              <AppText variant="label" color={Colors.textInverse}>Request to Join</AppText>
+              <AppText variant="label" color={Colors.textInverse}>{t('joinChurch.requestToJoin')}</AppText>
             </TouchableOpacity>
           </View>
         </View>
       </Card>
     ),
-    [handleRequest]
+    [handleRequest, t]
   );
 
   // Success screen
@@ -130,27 +132,27 @@ export default function JoinChurchScreen() {
             <Ionicons name="checkmark" size={40} color={Colors.textInverse} />
           </View>
           <AppText variant="displaySm" color={Colors.navy} style={styles.successTitle}>
-            Request Sent!
+            {t('joinChurch.requestSent')}
           </AppText>
           <AppText variant="bodyMd" color={Colors.textSecondary} style={styles.successSub}>
-            Your request to join {selectedChurch?.name} has been submitted. You'll be notified once approved.
+            {t('joinChurch.requestSentMessage', { church: selectedChurch?.name ?? '' })}
           </AppText>
           <TouchableOpacity
             onPress={() => router.replace('/(auth)/login')}
             style={styles.backLoginBtn}
             accessible
-            accessibilityLabel="Back to Login"
+            accessibilityLabel={t('joinChurch.backToLogin')}
             activeOpacity={0.8}
           >
-            <AppText variant="label" color={Colors.textInverse}>Back to Login</AppText>
+            <AppText variant="label" color={Colors.textInverse}>{t('joinChurch.backToLogin')}</AppText>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSkip}
             accessible
-            accessibilityLabel="Skip approval and enter app"
+            accessibilityLabel={t('joinChurch.skipApprovalA11y')}
             style={styles.skipLink}
           >
-            <AppText variant="bodySm" color={Colors.navy}>Skip Approval → Enter App</AppText>
+            <AppText variant="bodySm" color={Colors.navy}>{t('joinChurch.skipApproval')}</AppText>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -167,15 +169,15 @@ export default function JoinChurchScreen() {
         <TouchableOpacity
           onPress={() => router.back()}
           accessible
-          accessibilityLabel="Go back"
+          accessibilityLabel={t('joinChurch.goBackA11y')}
           style={styles.backBtn}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Ionicons name="chevron-back" size={24} color={Colors.navy} />
         </TouchableOpacity>
-        <AppText variant="headingMd" color={Colors.navy}>Find Your Parish</AppText>
+        <AppText variant="headingMd" color={Colors.navy}>{t('joinChurch.title')}</AppText>
         <AppText variant="bodySm" color={Colors.navyDark} style={styles.headerSub}>
-          Search and request to join your church
+          {t('joinChurch.subtitle')}
         </AppText>
       </GradientView>
 
@@ -184,15 +186,15 @@ export default function JoinChurchScreen() {
         <Ionicons name="search-outline" size={18} color={Colors.textMuted} style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search by church name or diocese..."
+          placeholder={t('joinChurch.searchPlaceholder')}
           placeholderTextColor={Colors.textMuted}
           value={query}
           onChangeText={setQuery}
           accessible
-          accessibilityLabel="Search churches"
+          accessibilityLabel={t('joinChurch.searchA11y')}
         />
         {query.length > 0 && (
-          <TouchableOpacity onPress={() => setQuery('')} accessible accessibilityLabel="Clear search">
+          <TouchableOpacity onPress={() => setQuery('')} accessible accessibilityLabel={t('joinChurch.clearSearchA11y')}>
             <Ionicons name="close-circle" size={18} color={Colors.textMuted} />
           </TouchableOpacity>
         )}
@@ -220,7 +222,7 @@ export default function JoinChurchScreen() {
           <View style={styles.modalSheet}>
             <View style={styles.modalHandle} />
             <AppText variant="headingMd" color={Colors.navy} style={styles.modalTitle}>
-              Request to Join
+              {t('joinChurch.requestToJoin')}
             </AppText>
             {selectedChurch && (
               <AppText variant="bodyMd" color={Colors.textSecondary} style={styles.modalChurch}>
@@ -228,35 +230,35 @@ export default function JoinChurchScreen() {
               </AppText>
             )}
             <AppText variant="label" color={Colors.textSecondary} style={styles.modalLabel}>
-              Message (optional)
+              {t('joinChurch.messageLabel')}
             </AppText>
             <TextInput
               style={styles.messageInput}
-              placeholder="Introduce yourself to the parish..."
+              placeholder={t('joinChurch.messagePlaceholder')}
               placeholderTextColor={Colors.textMuted}
               value={message}
               onChangeText={setMessage}
               multiline
               numberOfLines={4}
               accessible
-              accessibilityLabel="Message to parish"
+              accessibilityLabel={t('joinChurch.messageA11y')}
             />
             <TouchableOpacity
               onPress={handleSubmit}
               style={styles.submitBtn}
               accessible
-              accessibilityLabel="Submit request"
+              accessibilityLabel={t('joinChurch.submitRequestA11y')}
               activeOpacity={0.8}
             >
-              <AppText variant="label" color={Colors.textInverse}>Submit Request</AppText>
+              <AppText variant="label" color={Colors.textInverse}>{t('joinChurch.submitRequest')}</AppText>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setModalVisible(false)}
               accessible
-              accessibilityLabel="Cancel"
+              accessibilityLabel={t('common.cancel')}
               style={styles.cancelBtn}
             >
-              <AppText variant="bodyMd" color={Colors.textMuted}>Cancel</AppText>
+              <AppText variant="bodyMd" color={Colors.textMuted}>{t('common.cancel')}</AppText>
             </TouchableOpacity>
           </View>
         </View>

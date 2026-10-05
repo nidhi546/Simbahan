@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { AppText } from '../ui';
+import { useI18n } from '../../i18n';
+import { formatRank } from '../../utils/liturgicalHelpers';
 
 type Saint = {
   name: string;
@@ -27,6 +29,7 @@ function getTodaySaint(): Saint | null {
 }
 
 const SaintOfTheDay = () => {
+  const { t } = useI18n();
   const saint = getTodaySaint();
   if (!saint) return null;
 
@@ -37,11 +40,11 @@ const SaintOfTheDay = () => {
       </View>
       <View style={styles.content}>
         <AppText variant="label" color={Colors.gold} style={styles.sectionLabel}>
-          SANTO/A NG ARAW
+          {t('calendar.saintOfTheDay')}
         </AppText>
         <AppText variant="headingSm" color={Colors.navy}>{saint.name}</AppText>
         <AppText variant="caption" color={Colors.textMuted} style={styles.type}>
-          {saint.memorialType}
+          {formatRank(saint.memorialType, t)}
         </AppText>
         <AppText variant="bodySm" color={Colors.textSecondary} numberOfLines={3}>
           {saint.description}

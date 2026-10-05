@@ -24,21 +24,22 @@ import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { AppText } from '../../components/ui';
 import churchData from '../../data/church.json';
+import { useI18n } from '../../i18n';
 
 const FEATURES = [
-  { icon: 'calendar-outline' as const, title: 'Mass Schedule', desc: 'View weekly schedules at a glance.', color: Colors.navy },
-  { icon: 'newspaper-outline' as const, title: 'Announcements', desc: 'Latest news from your parish.', color: Colors.gold },
-  { icon: 'book-outline' as const, title: 'Daily Readings', desc: 'Gospel & liturgical readings daily.', color: Colors.sage },
-  { icon: 'people-outline' as const, title: 'Community', desc: 'Connect with parish ministries.', color: Colors.crimson },
-  { icon: 'heart-outline' as const, title: 'Prayer Requests', desc: 'Submit intentions for the community.', color: Colors.gold },
-  { icon: 'gift-outline' as const, title: 'Donations', desc: 'Support your parish securely.', color: Colors.navy },
+  { icon: 'calendar-outline' as const, titleKey: 'publicHome.featureMassTitle', descKey: 'publicHome.featureMassDesc', color: Colors.navy },
+  { icon: 'newspaper-outline' as const, titleKey: 'publicHome.featureAnnouncementsTitle', descKey: 'publicHome.featureAnnouncementsDesc', color: Colors.gold },
+  { icon: 'book-outline' as const, titleKey: 'publicHome.featureReadingsTitle', descKey: 'publicHome.featureReadingsDesc', color: Colors.sage },
+  { icon: 'people-outline' as const, titleKey: 'publicHome.featureCommunityTitle', descKey: 'publicHome.featureCommunityDesc', color: Colors.crimson },
+  { icon: 'heart-outline' as const, titleKey: 'publicHome.featurePrayerTitle', descKey: 'publicHome.featurePrayerDesc', color: Colors.gold },
+  { icon: 'gift-outline' as const, titleKey: 'publicHome.featureDonationsTitle', descKey: 'publicHome.featureDonationsDesc', color: Colors.navy },
 ];
 
 const STATS = [
-  { value: '1,200+', label: 'Parishioners', icon: 'people' as const },
-  { value: '9', label: 'Ministries', icon: 'layers' as const },
-  { value: 'Daily', label: 'Readings', icon: 'book' as const },
-  { value: 'Free', label: 'Forever', icon: 'heart' as const },
+  { value: '1,200+', labelKey: 'publicHome.statParishioners', icon: 'people' as const },
+  { value: '9', labelKey: 'publicHome.statMinistries', icon: 'layers' as const },
+  { valueKey: 'publicHome.statDailyValue', labelKey: 'publicHome.statReadings', icon: 'book' as const },
+  { valueKey: 'publicHome.statFreeValue', labelKey: 'publicHome.statForever', icon: 'heart' as const },
 ];
 
 const EASE = Easing.out(Easing.cubic);
@@ -66,6 +67,7 @@ function useFadeSlide(delay = 0) {
 }
 
 export default function LandingPage() {
+  const { t } = useI18n();
   const { width, height } = useWindowDimensions();
   const isWide = width >= 768;
 
@@ -120,15 +122,15 @@ export default function LandingPage() {
           </View>
           <View>
             <AppText variant="headingMd" color={Colors.navy}>Simbahan</AppText>
-            <AppText variant="caption" color={Colors.textMuted}>Your parish, in your pocket</AppText>
+            <AppText variant="caption" color={Colors.textMuted}>{t('auth.tagline')}</AppText>
           </View>
         </View>
         <View style={styles.navActions}>
-          <TouchableOpacity onPress={handleLogin} style={styles.navLogin} activeOpacity={0.8} accessible accessibilityLabel="Login">
-            <AppText variant="label" color={Colors.navy}>Login</AppText>
+          <TouchableOpacity onPress={handleLogin} style={styles.navLogin} activeOpacity={0.8} accessible accessibilityLabel={t('publicHome.login')}>
+            <AppText variant="label" color={Colors.navy}>{t('publicHome.login')}</AppText>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleSignup} style={styles.navSignup} activeOpacity={0.8} accessible accessibilityLabel="Sign up">
-            <AppText variant="label" color={Colors.textInverse}>Sign Up</AppText>
+          <TouchableOpacity onPress={handleSignup} style={styles.navSignup} activeOpacity={0.8} accessible accessibilityLabel={t('publicHome.signUpA11y')}>
+            <AppText variant="label" color={Colors.textInverse}>{t('auth.signUp')}</AppText>
           </TouchableOpacity>
         </View>
       </View>
@@ -156,15 +158,15 @@ export default function LandingPage() {
               {churchData.name}
             </AppText>
             <AppText variant="bodyMd" color={Colors.goldLight} style={styles.heroSub}>
-              Est. {churchData.founded} · {churchData.city}
+              {t('publicHome.established', { year: churchData.founded, city: churchData.city })}
             </AppText>
             <View style={styles.heroCtas}>
-              <TouchableOpacity onPress={handleSignup} style={styles.heroPrimary} activeOpacity={0.85} accessible accessibilityLabel="Get started">
-                <AppText variant="label" color={Colors.navyDark}>Get Started — Free</AppText>
+              <TouchableOpacity onPress={handleSignup} style={styles.heroPrimary} activeOpacity={0.85} accessible accessibilityLabel={t('publicHome.getStartedA11y')}>
+                <AppText variant="label" color={Colors.navyDark}>{t('publicHome.getStartedFree')}</AppText>
                 <Ionicons name="arrow-forward" size={14} color={Colors.navyDark} />
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleLogin} style={styles.heroSecondary} activeOpacity={0.85} accessible accessibilityLabel="Sign in">
-                <AppText variant="label" color={Colors.textInverse}>Sign In</AppText>
+              <TouchableOpacity onPress={handleLogin} style={styles.heroSecondary} activeOpacity={0.85} accessible accessibilityLabel={t('auth.signInLower')}>
+                <AppText variant="label" color={Colors.textInverse}>{t('auth.signIn')}</AppText>
               </TouchableOpacity>
             </View>
           </Animated.View>
@@ -177,13 +179,13 @@ export default function LandingPage() {
         >
           <View style={styles.statsBar}>
             {STATS.map((s, i) => (
-              <React.Fragment key={s.label}>
+              <React.Fragment key={s.labelKey}>
                 <View style={styles.statItem}>
                   <View style={styles.statIcon}>
                     <Ionicons name={s.icon} size={16} color={Colors.gold} />
                   </View>
-                  <AppText variant="headingSm" color={Colors.navy}>{s.value}</AppText>
-                  <AppText variant="caption" color={Colors.textMuted}>{s.label}</AppText>
+                  <AppText variant="headingSm" color={Colors.navy}>{s.valueKey ? t(s.valueKey) : s.value}</AppText>
+                  <AppText variant="caption" color={Colors.textMuted}>{t(s.labelKey)}</AppText>
                 </View>
                 {i < STATS.length - 1 && <View style={styles.statDivider} />}
               </React.Fragment>
@@ -198,17 +200,17 @@ export default function LandingPage() {
         >
           <View style={styles.featuresSection}>
             <View style={styles.sectionBadge}>
-              <AppText variant="caption" color={Colors.gold}>✦ FEATURES</AppText>
+              <AppText variant="caption" color={Colors.gold}>{t('publicHome.featuresBadge')}</AppText>
             </View>
             <AppText variant="displaySm" color={Colors.navy} style={styles.sectionTitle}>
-              Everything Your Parish Needs
+              {t('publicHome.featuresTitle')}
             </AppText>
             <AppText variant="bodyMd" color={Colors.textSecondary} style={styles.sectionDesc}>
-              One app for your entire faith journey.
+              {t('publicHome.featuresSubtitle')}
             </AppText>
             <View style={StyleSheet.flatten([styles.grid, isWide && styles.gridWide])}>
               {FEATURES.map((f, i) => (
-                <FeatureCard key={f.title} f={f} isWide={isWide} index={i} visible={features.visible} />
+                <FeatureCard key={f.titleKey} f={f} isWide={isWide} index={i} visible={features.visible} />
               ))}
             </View>
           </View>
@@ -222,7 +224,7 @@ export default function LandingPage() {
           <View style={styles.quoteStrip}>
             <Ionicons name="chatbubble-ellipses" size={28} color={Colors.goldLight} style={{ marginBottom: Spacing.sm }} />
             <AppText variant="bodyLg" color={Colors.textInverse} style={styles.quoteText}>
-              "Ang simbahan ay hindi lamang isang gusali — ito ang ating pamilya."
+              {t('publicHome.quote')}
             </AppText>
             <AppText variant="caption" color={Colors.goldLight} style={{ marginTop: Spacing.sm }}>
               — {churchData.pastor}
@@ -241,19 +243,19 @@ export default function LandingPage() {
                 <AppText style={{ fontSize: 32, color: Colors.gold }}>✝</AppText>
               </View>
               <AppText variant="displaySm" color={Colors.navy} style={styles.ctaTitle}>
-                Join {churchData.name}
+                {t('publicHome.ctaTitle', { church: churchData.name })}
               </AppText>
               <AppText variant="bodyMd" color={Colors.textSecondary} style={styles.ctaDesc}>
-                Free for all parishioners. Connect, pray, and grow together.
+                {t('publicHome.ctaDescription')}
               </AppText>
-              <TouchableOpacity onPress={handleSignup} style={styles.ctaBtn} activeOpacity={0.85} accessible accessibilityLabel="Create free account">
-                <AppText variant="label" color={Colors.textInverse}>Create Free Account</AppText>
+              <TouchableOpacity onPress={handleSignup} style={styles.ctaBtn} activeOpacity={0.85} accessible accessibilityLabel={t('publicHome.createFreeAccountA11y')}>
+                <AppText variant="label" color={Colors.textInverse}>{t('publicHome.createFreeAccount')}</AppText>
                 <Ionicons name="person-add" size={16} color={Colors.textInverse} />
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleLogin} activeOpacity={0.7} accessible accessibilityLabel="Already have account">
+              <TouchableOpacity onPress={handleLogin} activeOpacity={0.7} accessible accessibilityLabel={t('publicHome.hasAccountA11y')}>
                 <AppText variant="bodySm" color={Colors.textMuted}>
-                  Already have an account?{' '}
-                  <AppText variant="bodySm" color={Colors.navy}>Sign in</AppText>
+                  {t('auth.hasAccount')}{' '}
+                  <AppText variant="bodySm" color={Colors.navy}>{t('auth.signInLower')}</AppText>
                 </AppText>
               </TouchableOpacity>
             </View>
@@ -274,10 +276,10 @@ export default function LandingPage() {
             <View style={styles.ministriesLeft}>
               <View style={styles.ministriesBadge}>
                 <Ionicons name="layers-outline" size={13} color={Colors.gold} />
-                <AppText variant="caption" color={Colors.gold}> MINISTRIES</AppText>
+                <AppText variant="caption" color={Colors.gold}> {t('publicHome.ministriesBadge')}</AppText>
               </View>
               <AppText variant="headingMd" color={Colors.textInverse} style={{ marginBottom: Spacing.sm }}>
-                9 Active Ministries
+                {t('publicHome.activeMinistries', { count: 9 })}
               </AppText>
               <View style={styles.ministriesList}>
                 {churchData.ministries.slice(0, 6).map((m) => (
@@ -286,13 +288,13 @@ export default function LandingPage() {
                   </View>
                 ))}
                 <View style={styles.ministryPill}>
-                  <AppText variant="caption" color={Colors.goldLight}>+{churchData.ministries.length - 6} more</AppText>
+                  <AppText variant="caption" color={Colors.goldLight}>{t('publicHome.moreMinistries', { count: churchData.ministries.length - 6 })}</AppText>
                 </View>
               </View>
             </View>
             <View style={styles.ministriesDivider} />
             <View style={styles.socialCol}>
-              <AppText variant="label" color={Colors.textInverse} style={{ marginBottom: Spacing.sm }}>Follow Us</AppText>
+              <AppText variant="label" color={Colors.textInverse} style={{ marginBottom: Spacing.sm }}>{t('publicHome.followUs')}</AppText>
               <TouchableOpacity style={styles.socialRow} activeOpacity={0.75} accessible accessibilityLabel="Facebook">
                 <View style={styles.socialIcon}>
                   <Ionicons name="logo-facebook" size={18} color={Colors.navy} />
@@ -345,6 +347,7 @@ function FeatureCard({
   index: number;
   visible: Animated.SharedValue<boolean>;
 }) {
+  const { t } = useI18n();
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(24);
   const scale = useSharedValue(1);
@@ -374,14 +377,14 @@ function FeatureCard({
       onPressIn={onPressIn}
       onPressOut={onPressOut}
       accessible
-      accessibilityLabel={f.title}
+      accessibilityLabel={t(f.titleKey)}
     >
       <Animated.View style={[StyleSheet.flatten([styles.featureCard, isWide && styles.featureCardWide]), animStyle]}>
         <View style={StyleSheet.flatten([styles.featureIconWrap, { backgroundColor: f.color + '15' }])}>
           <Ionicons name={f.icon} size={22} color={f.color} />
         </View>
-        <AppText variant="headingSm" color={Colors.navy}>{f.title}</AppText>
-        <AppText variant="bodySm" color={Colors.textSecondary}>{f.desc}</AppText>
+        <AppText variant="headingSm" color={Colors.navy}>{t(f.titleKey)}</AppText>
+        <AppText variant="bodySm" color={Colors.textSecondary}>{t(f.descKey)}</AppText>
         <View style={StyleSheet.flatten([styles.featureAccent, { backgroundColor: f.color }])} />
       </Animated.View>
     </TouchableOpacity>

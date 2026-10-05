@@ -22,10 +22,19 @@ import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { useChurchStore } from '../../store/churchStore';
 import { useUiStore } from '../../store/uiStore';
 import announcementsData from '../../data/announcements.json';
+import { useI18n } from '../../i18n';
 
 type Announcement = typeof announcementsData[number];
 
 const CATEGORIES = ['Lahat', 'Mass', 'Event', 'Sacrament', 'Youth', 'Ministry'];
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
+  'Lahat': 'announcements.categories.all',
+  'Mass': 'announcements.categories.mass',
+  'Event': 'announcements.categories.event',
+  'Sacrament': 'announcements.categories.sacrament',
+  'Youth': 'announcements.categories.youth',
+  'Ministry': 'announcements.categories.ministry',
+};
 const Separator = () => <View style={{ height: 8 }} />;
 const keyExtractor = (item: Announcement) => item.id;
 const isWeb = Platform.OS === 'web';
@@ -36,6 +45,7 @@ export default function AnnouncementsTab() {
   const openSidebar = useUiStore((s) => s.openSidebar);
   const [activeCategory, setActiveCategory] = useState('Lahat');
   const { isWeb: isWebBreakpoint } = useBreakpoint();
+  const { t } = useI18n();
 
   const filtered = useMemo(() =>
     activeCategory === 'Lahat'
@@ -69,15 +79,15 @@ export default function AnnouncementsTab() {
       <GradientView colors={[Colors.navyDark, Colors.navy]} style={styles.headerGradient}>
         <View style={styles.headerRow}>
           {!isWeb && (
-            <TouchableOpacity onPress={openSidebar} style={styles.menuBtn} activeOpacity={0.7} accessible accessibilityLabel="Open menu">
+            <TouchableOpacity onPress={openSidebar} style={styles.menuBtn} activeOpacity={0.7} accessible accessibilityLabel={t('nav.openMenu')}>
               <Ionicons name="menu" size={24} color={Colors.textInverse} />
             </TouchableOpacity>
           )}
           <View style={styles.headerText}>
             <AppText variant="displaySm" color={Colors.textInverse} style={styles.headerTitle}>
-              Mga Anunsyo
+              {t('announcements.title')}
             </AppText>
-            <AppText variant="bodySm" color={Colors.goldLight}>Parish announcements &amp; notices</AppText>
+            <AppText variant="bodySm" color={Colors.goldLight}>{t('announcements.subtitle')}</AppText>
           </View>
         </View>
       </GradientView>
@@ -95,7 +105,7 @@ export default function AnnouncementsTab() {
               style={[styles.pill, active ? styles.pillActive : styles.pillInactive]}
             >
               <AppText variant="label" color={active ? Colors.textInverse : Colors.textMuted}>
-                {cat}
+                {t(CATEGORY_LABEL_KEYS[cat])}
               </AppText>
             </Pressable>
           );

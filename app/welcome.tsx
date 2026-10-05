@@ -21,37 +21,37 @@ import Animated, {
 import { Colors } from '../constants/Colors';
 import { Spacing, Radius } from '../constants/Layout';
 import AppText from '../components/ui/AppText';
+import LanguageToggle from '../components/ui/LanguageToggle';
 import { useAuthStore } from '../store/authStore';
+import { useI18n } from '../i18n';
 
 const STEPS = [
   {
     icon: 'book-outline' as const,
     iconBg: Colors.navy,
     accentColor: Colors.navy,
-    title: 'Daily Readings & Gospel',
-    description:
-      'Start every day with the Word of God. Access daily Mass readings, the Gospel, and liturgical reflections right from your phone.',
+    titleKey: 'welcome.step1Title',
+    descriptionKey: 'welcome.step1Description',
   },
   {
     icon: 'calendar-outline' as const,
     iconBg: Colors.gold,
     accentColor: Colors.gold,
-    title: 'Mass Schedule & Events',
-    description:
-      'Never miss a Mass or parish event. View weekly schedules, feast days, and upcoming activities all in one place.',
+    titleKey: 'welcome.step2Title',
+    descriptionKey: 'welcome.step2Description',
   },
   {
     icon: 'people-outline' as const,
     iconBg: Colors.sage,
     accentColor: Colors.sage,
-    title: 'Your Parish Community',
-    description:
-      'Stay connected with your parish family. Receive announcements, submit prayer requests, and support your community.',
+    titleKey: 'welcome.step3Title',
+    descriptionKey: 'welcome.step3Description',
   },
 ];
 
 export default function WelcomeScreen() {
   const { width } = useWindowDimensions();
+  const { t } = useI18n();
   const scrollRef = useRef<ScrollView>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const setOnboarded = useAuthStore((s) => s.setOnboarded);
@@ -93,19 +93,22 @@ export default function WelcomeScreen() {
         <AppText variant="caption" color={Colors.textMuted}>
           {currentStep + 1} / {STEPS.length}
         </AppText>
-        {!isLast && (
-          <TouchableOpacity
-            onPress={handleFinish}
-            accessible
-            accessibilityLabel="Skip welcome"
-            activeOpacity={0.7}
-            style={styles.skipBtn}
-          >
-            <AppText variant="bodySm" color={Colors.textMuted}>
-              Skip
-            </AppText>
-          </TouchableOpacity>
-        )}
+        <View style={styles.topBarRight}>
+          <LanguageToggle />
+          {!isLast && (
+            <TouchableOpacity
+              onPress={handleFinish}
+              accessible
+              accessibilityLabel={t('welcome.skipA11y')}
+              activeOpacity={0.7}
+              style={styles.skipBtn}
+            >
+              <AppText variant="bodySm" color={Colors.textMuted}>
+                {t('common.skip')}
+              </AppText>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {/* Slides */}
@@ -163,14 +166,14 @@ export default function WelcomeScreen() {
                 color={Colors.navy}
                 style={styles.title}
               >
-                {step.title}
+                {t(step.titleKey)}
               </AppText>
               <AppText
                 variant="bodyMd"
                 color={Colors.textSecondary}
                 style={styles.description}
               >
-                {step.description}
+                {t(step.descriptionKey)}
               </AppText>
             </View>
           </View>
@@ -197,7 +200,7 @@ export default function WelcomeScreen() {
         <TouchableOpacity
           onPress={isLast ? handleFinish : handleNext}
           accessible
-          accessibilityLabel={isLast ? 'Continue to login' : 'Next step'}
+          accessibilityLabel={isLast ? t('welcome.continueA11y') : t('welcome.nextA11y')}
           activeOpacity={0.85}
           style={[
             styles.ctaBtn,
@@ -209,7 +212,7 @@ export default function WelcomeScreen() {
             color={Colors.textInverse}
             style={styles.ctaBtnText}
           >
-            {isLast ? 'Magsimula na' : 'Susunod'}
+            {isLast ? t('welcome.getStarted') : t('common.next')}
           </AppText>
           <Ionicons
             name={isLast ? 'checkmark-circle-outline' : 'arrow-forward'}
@@ -221,16 +224,16 @@ export default function WelcomeScreen() {
         {/* Login shortcut */}
         <View style={styles.loginRow}>
           <AppText variant="bodySm" color={Colors.textMuted}>
-            Mayroon nang account?{' '}
+            {t('auth.hasAccount')}{' '}
           </AppText>
           <TouchableOpacity
             onPress={handleFinish}
             accessible
-            accessibilityLabel="Go to login"
+            accessibilityLabel={t('welcome.loginA11y')}
             activeOpacity={0.7}
           >
             <AppText variant="bodySm" color={Colors.navy}>
-              Mag-login
+              {t('welcome.login')}
             </AppText>
           </TouchableOpacity>
         </View>
@@ -252,6 +255,7 @@ function AnimatedDot({
   accentColor: string;
   onPress: () => void;
 }) {
+  const { t } = useI18n();
   const dotStyle = useAnimatedStyle(() => {
     const inputRange = [
       (index - 1) * width,
@@ -282,7 +286,7 @@ function AnimatedDot({
       onPress={onPress}
       activeOpacity={0.7}
       accessible
-      accessibilityLabel={`Go to step ${index + 1}`}
+      accessibilityLabel={t('welcome.stepA11y', { step: index + 1 })}
       hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
     >
       <Animated.View style={[styles.dot, dotStyle]} />
@@ -301,6 +305,11 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.xs,
     paddingBottom: Spacing.xs,
     minHeight: 44,
+  },
+  topBarRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
   },
   skipBtn: {
     paddingHorizontal: Spacing.sm,

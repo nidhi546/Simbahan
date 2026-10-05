@@ -5,9 +5,11 @@ import { router } from 'expo-router';
 import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { AppText } from '../ui';
-import { getUpcomingFeasts } from '../../utils/liturgicalHelpers';
+import { getUpcomingFeasts, formatRank } from '../../utils/liturgicalHelpers';
+import { useI18n } from '../../i18n';
 
 const HolyDayAlert = () => {
+  const { t } = useI18n();
   const alert = useMemo(() => {
     const todayStr = new Date().toISOString().split('T')[0];
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
@@ -25,16 +27,16 @@ const HolyDayAlert = () => {
     <TouchableOpacity
       onPress={handlePress}
       accessible
-      accessibilityLabel={`Holy day alert: ${alert.name}`}
+      accessibilityLabel={t('calendar.holyDayAlertA11y', { name: alert.name })}
       activeOpacity={0.85}
       style={styles.strip}
     >
       <Ionicons name="alert-circle-outline" size={16} color={Colors.textInverse} />
       <AppText variant="label" color={Colors.textInverse} style={styles.text}>
-        {isToday ? 'Ngayon' : 'Bukas'}: {alert.name} — {alert.rank}
+        {isToday ? t('calendar.today') : t('calendar.tomorrow')}: {alert.name} — {formatRank(alert.rank, t)}
       </AppText>
       <AppText variant="caption" color={Colors.goldPale} style={styles.link}>
-        Tingnan ang Misa →
+        {t('calendar.viewMass')}
       </AppText>
     </TouchableOpacity>
   );

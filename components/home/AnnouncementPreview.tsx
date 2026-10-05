@@ -5,18 +5,20 @@ import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { AppText, Badge, SectionHeader } from '../ui';
 import { useChurchStore } from '../../store/churchStore';
+import { useI18n } from '../../i18n';
 
-function timeAgo(dateStr: string): string {
+function timeAgo(dateStr: string, t: ReturnType<typeof useI18n>['t']): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const days = Math.floor(diff / 86400000);
-  if (days === 0) return 'Ngayon';
-  if (days === 1) return 'Kahapon';
-  if (days < 7) return `${days} araw na ang nakalipas`;
-  return `${Math.floor(days / 7)} linggo na ang nakalipas`;
+  if (days === 0) return t('home.today');
+  if (days === 1) return t('home.yesterday');
+  if (days < 7) return t('home.daysAgo', { count: days });
+  return t('home.weeksAgo', { count: Math.floor(days / 7) });
 }
 
 const AnnouncementPreview = () => {
   const announcements = useChurchStore((s) => s.announcements);
+  const { t } = useI18n();
 
   const preview = useMemo(() => announcements.slice(0, 2), [announcements]);
 
@@ -28,7 +30,7 @@ const AnnouncementPreview = () => {
 
   return (
     <View style={styles.wrap}>
-      <SectionHeader title="Mga Anunsyo" onSeeAll={handleSeeAll} />
+      <SectionHeader title={t('announcements.title')} onSeeAll={handleSeeAll} />
       {preview.map((item) => (
         <TouchableOpacity
           key={item.id}
@@ -42,7 +44,7 @@ const AnnouncementPreview = () => {
           <View style={styles.cardBody}>
             <View style={styles.topRow}>
               <Badge label={item.category} variant="gold" />
-              <AppText variant="caption" color={Colors.textMuted}>{timeAgo(item.date)}</AppText>
+              <AppText variant="caption" color={Colors.textMuted}>{timeAgo(item.date, t)}</AppText>
             </View>
             <AppText variant="headingSm" color={Colors.navy} numberOfLines={2} style={styles.title}>
               {item.title}

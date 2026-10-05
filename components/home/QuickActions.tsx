@@ -5,29 +5,31 @@ import { router } from 'expo-router';
 import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { AppText } from '../ui';
+import { useI18n } from '../../i18n';
 
 type Action = {
   id: string;
-  label: string;
+  labelKey: string;
   icon: React.ComponentProps<typeof Ionicons>['name'];
   route: string;
   accent: string;
 };
 
 const ACTIONS: Action[] = [
-  { id: '1', label: 'Anunsyo', icon: 'newspaper-outline', route: '/(tabs)/announcements', accent: Colors.navy },
-  { id: '2', label: 'Kaganapan', icon: 'calendar-outline', route: '/(tabs)/schedule', accent: Colors.gold },
-  { id: '3', label: 'Donasyon', icon: 'gift-outline', route: '/(tabs)/more', accent: Colors.sage },
-  { id: '4', label: 'Panalangin', icon: 'heart-outline', route: '/(tabs)/more', accent: Colors.crimson },
+  { id: '1', labelKey: 'home.actions.announcements', icon: 'newspaper-outline', route: '/(tabs)/announcements', accent: Colors.navy },
+  { id: '2', labelKey: 'home.actions.events', icon: 'calendar-outline', route: '/(tabs)/schedule', accent: Colors.gold },
+  { id: '3', labelKey: 'home.actions.donations', icon: 'gift-outline', route: '/(tabs)/more', accent: Colors.sage },
+  { id: '4', labelKey: 'home.actions.prayers', icon: 'heart-outline', route: '/(tabs)/more', accent: Colors.crimson },
 ];
 
 const ActionItem = React.memo(({ item }: { item: Action }) => {
   const handlePress = useCallback(() => router.push(item.route as never), [item.route]);
+  const { t } = useI18n();
   return (
     <TouchableOpacity
       onPress={handlePress}
       accessible
-      accessibilityLabel={item.label}
+      accessibilityLabel={t(item.labelKey)}
       activeOpacity={0.75}
       style={styles.item}
     >
@@ -35,7 +37,7 @@ const ActionItem = React.memo(({ item }: { item: Action }) => {
         <Ionicons name={item.icon} size={24} color={item.accent} />
       </View>
       <AppText variant="label" color={Colors.textPrimary} style={styles.label}>
-        {item.label}
+        {t(item.labelKey)}
       </AppText>
     </TouchableOpacity>
   );

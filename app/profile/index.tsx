@@ -15,6 +15,7 @@ import { useChurchStore } from '../../store/churchStore';
 import { useMemberStore } from '../../store/memberStore';
 import { useModule10Store } from '../../store/module10Store';
 import churchData from '../../data/church.json';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 
@@ -37,6 +38,7 @@ function InfoRow({ icon, label, value, onPress }: {
 }
 
 export default function ProfileScreen() {
+  const { t } = useI18n();
   const currentUser = useAuthStore((s) => s.currentUser);
   const donations = useChurchStore((s) => s.donations);
   const families = useMemberStore((s) => s.families);
@@ -61,8 +63,8 @@ export default function ProfileScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerRow}>
-          <AppText variant="displaySm" color={Colors.textInverse}>Profile</AppText>
-          <TouchableOpacity onPress={handleEdit} style={styles.editBtn} accessible accessibilityLabel="I-edit ang profile">
+          <AppText variant="displaySm" color={Colors.textInverse}>{t('profile.header')}</AppText>
+          <TouchableOpacity onPress={handleEdit} style={styles.editBtn} accessible accessibilityLabel={t('profile.editA11y')}>
             <Ionicons name="create-outline" size={22} color={Colors.goldLight} />
           </TouchableOpacity>
         </View>
@@ -76,7 +78,7 @@ export default function ProfileScreen() {
         </View>
         <AppText variant="displaySm" color={Colors.navy} style={styles.heroName}>{name}</AppText>
         <AppText variant="caption" color={Colors.textMuted}>
-          Sumali: {currentUser?.joinedDate ?? '—'}
+          {t('profile.joinedOn', { date: currentUser?.joinedDate ?? '—' })}
         </AppText>
         {ministries.length > 0 && (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgeRow}>
@@ -87,37 +89,37 @@ export default function ProfileScreen() {
 
       {/* Personal */}
       <View style={styles.card}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>Personal</AppText>
-        <InfoRow icon="calendar-outline" label="Kaarawan" value={birthday || '—'} />
-        <InfoRow icon="location-outline" label="Barangay" value={barangay || '—'} />
-        <InfoRow icon="person-outline"   label="Kasarian" value={currentUser?.gender === 'male' ? 'Lalaki' : 'Babae'} />
+        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>{t('profile.personal')}</AppText>
+        <InfoRow icon="calendar-outline" label={t('profile.birthday')} value={birthday || '—'} />
+        <InfoRow icon="location-outline" label={t('profile.barangayLabel')} value={barangay || '—'} />
+        <InfoRow icon="person-outline"   label={t('profile.gender')} value={currentUser?.gender === 'male' ? t('profile.male') : t('profile.female')} />
       </View>
 
       {/* Contact */}
       <View style={styles.card}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>Pakikipag-ugnayan</AppText>
-        <InfoRow icon="call-outline"  label="Telepono" value={phone || '—'} onPress={phone ? () => Linking.openURL(`tel:${phone}`) : undefined} />
-        <InfoRow icon="mail-outline"  label="Email"    value={email || '—'} onPress={email ? () => Linking.openURL(`mailto:${email}`) : undefined} />
+        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>{t('profile.contact')}</AppText>
+        <InfoRow icon="call-outline"  label={t('profile.phone')} value={phone || '—'} onPress={phone ? () => Linking.openURL(`tel:${phone}`) : undefined} />
+        <InfoRow icon="mail-outline"  label={t('profile.email')} value={email || '—'} onPress={email ? () => Linking.openURL(`mailto:${email}`) : undefined} />
       </View>
 
       {/* Church */}
       <View style={styles.card}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>Simbahan</AppText>
-        <InfoRow icon="business-outline" label="Parokya"   value={churchData.name} />
-        <InfoRow icon="calendar-outline" label="Sumali"    value={currentUser?.joinedDate ?? '—'} />
-        <InfoRow icon="ribbon-outline"   label="Tungkulin" value={currentUser?.role ?? '—'} />
-        {family && <InfoRow icon="heart-outline" label="Pamilya" value={family.familyName} />}
+        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>{t('profile.church')}</AppText>
+        <InfoRow icon="business-outline" label={t('profile.parish')} value={churchData.name} />
+        <InfoRow icon="calendar-outline" label={t('profile.joined')} value={currentUser?.joinedDate ?? '—'} />
+        <InfoRow icon="ribbon-outline"   label={t('profile.role')} value={currentUser?.role ?? '—'} />
+        {family && <InfoRow icon="heart-outline" label={t('profile.family')} value={family.familyName} />}
       </View>
 
       {/* Ministries */}
       <View style={styles.card}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>Mga Ministeryo</AppText>
+        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>{t('profile.ministries')}</AppText>
         {ministries.length > 0 ? (
           <View style={styles.ministryBadges}>
             {ministries.map((m) => <Badge key={m} label={m} variant="gold" size="md" />)}
           </View>
         ) : (
-          <EmptyState icon="ribbon-outline" title="Walang ministeryo" message="Hindi pa miyembro ng anumang ministeryo." />
+          <EmptyState icon="ribbon-outline" title={t('profile.noMinistriesTitle')} message={t('profile.noMinistriesMessage')} />
         )}
       </View>
 
@@ -126,14 +128,14 @@ export default function ProfileScreen() {
         <Ionicons name="gift-outline" size={20} color={Colors.gold} />
         <View style={{ flex: 1 }}>
           <AppText variant="displaySm" color={Colors.navy}>₱{totalDonated.toLocaleString('en-PH')}</AppText>
-          <AppText variant="caption" color={Colors.textMuted}>{myDonations.length} donasyon</AppText>
+          <AppText variant="caption" color={Colors.textMuted}>{t('profile.donationCount', { count: myDonations.length })}</AppText>
         </View>
         <TouchableOpacity
           onPress={() => router.push('/donations/history' as never)}
           accessible
-          accessibilityLabel="Tingnan ang kasaysayan ng donasyon"
+          accessibilityLabel={t('profile.donationHistoryA11y')}
         >
-          <AppText variant="label" color={Colors.navy}>Kasaysayan →</AppText>
+          <AppText variant="label" color={Colors.navy}>{t('profile.history')}</AppText>
         </TouchableOpacity>
       </View>
     </ScrollView>

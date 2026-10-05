@@ -17,9 +17,16 @@ import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import massScheduleData from '../../data/massSchedule.json';
 import confessionData from '../../data/confessionSchedule.json';
+import { useI18n } from '../../i18n';
 
 const TABS = ['Regular', 'Special', 'Confession'] as const;
 type Tab = typeof TABS[number];
+
+const TAB_LABEL_KEYS: Record<Tab, string> = {
+  Regular: 'massSchedule.tabs.regular',
+  Special: 'massSchedule.tabs.special',
+  Confession: 'massSchedule.tabs.confession',
+};
 
 const PRESIDERS: Record<string, string> = {
   Sunday: 'Fr. Jose Maria Santos',
@@ -28,15 +35,15 @@ const PRESIDERS: Record<string, string> = {
 
 const SPECIAL_MASSES = [
   {
-    event: 'Ash Wednesday',
-    date: 'Marso 5, 2025',
+    eventKey: 'massSchedule.special.ashWednesday',
+    dateKey: 'massSchedule.special.ashWednesdayDate',
     times: ['6:00 AM', '12:00 NN', '6:00 PM'],
     languages: ['Filipino', 'Filipino', 'Filipino'],
     fasting: true,
   },
   {
-    event: 'Good Friday',
-    date: 'Abril 18, 2025',
+    eventKey: 'massSchedule.special.goodFriday',
+    dateKey: 'massSchedule.special.goodFridayDate',
     times: ['9:00 AM', '3:00 PM'],
     languages: ['Filipino', 'Filipino'],
     fasting: true,
@@ -44,10 +51,10 @@ const SPECIAL_MASSES = [
 ];
 
 const DAY_GROUPS = [
-  { label: 'LINGGO', subtitle: 'Sunday', ids: ['ms_001'] },
-  { label: 'SABADO', subtitle: 'Saturday', ids: ['ms_007'] },
+  { label: 'LINGGO', labelKey: 'massSchedule.groups.sunday', subtitleKey: 'massSchedule.groups.sundaySub', ids: ['ms_001'] },
+  { label: 'SABADO', labelKey: 'massSchedule.groups.saturday', subtitleKey: 'massSchedule.groups.saturdaySub', ids: ['ms_007'] },
   {
-    label: 'ARAW NG LINGGO', subtitle: 'Monday – Friday',
+    label: 'ARAW NG LINGGO', labelKey: 'massSchedule.groups.weekdays', subtitleKey: 'massSchedule.groups.weekdaysSub',
     ids: ['ms_002', 'ms_003', 'ms_004', 'ms_005', 'ms_006'],
   },
 ];
@@ -56,6 +63,7 @@ const isWeb = Platform.OS === 'web';
 
 export default function MassScheduleScreen() {
   const [tab, setTab] = useState<Tab>('Regular');
+  const { t } = useI18n();
 
   const renderRegular = useCallback(() => (
     <View style={styles.section}>
@@ -68,10 +76,10 @@ export default function MassScheduleScreen() {
           <View key={group.label} style={styles.groupBlock}>
             <View style={styles.dayHeader}>
               <AppText variant="label" color={Colors.navy} style={styles.dayLabel}>
-                {group.label}
+                {t(group.labelKey)}
               </AppText>
               <View style={styles.goldLine} />
-              <AppText variant="caption" color={Colors.textMuted}>{group.subtitle}</AppText>
+              <AppText variant="caption" color={Colors.textMuted}>{t(group.subtitleKey)}</AppText>
             </View>
             <View style={styles.rows}>
               {allTimes.map((item, i) => (
@@ -92,28 +100,28 @@ export default function MassScheduleScreen() {
       <View style={styles.noticeCard}>
         <Ionicons name="information-circle-outline" size={18} color={Colors.navy} />
         <AppText variant="bodySm" color={Colors.textSecondary} style={styles.noticeText}>
-          Ang iskedyul ay maaaring magbago sa mga espesyal na okasyon. Makipag-ugnayan sa parokya para sa kumpirmasyon.
+          {t('massSchedule.notice')}
         </AppText>
       </View>
     </View>
-  ), []);
+  ), [t]);
 
   const renderSpecial = useCallback(() => (
     <View style={styles.section}>
       {SPECIAL_MASSES.map((s) => (
-        <View key={s.event} style={styles.groupBlock}>
+        <View key={s.eventKey} style={styles.groupBlock}>
           {s.fasting && (
             <View style={styles.fastingAlert}>
               <Ionicons name="warning-outline" size={14} color={Colors.textInverse} />
               <AppText variant="caption" color={Colors.textInverse} style={{ marginLeft: 4 }}>
-                Araw ng Pag-aayuno at Abstinensya
+                {t('massSchedule.fastingAbstinenceDay')}
               </AppText>
             </View>
           )}
           <View style={styles.specialCard}>
-            <AppText variant="headingSm" color={Colors.crimson}>{s.event}</AppText>
+            <AppText variant="headingSm" color={Colors.crimson}>{t(s.eventKey)}</AppText>
             <View style={styles.dateBadge}>
-              <AppText variant="caption" color={Colors.navy}>{s.date}</AppText>
+              <AppText variant="caption" color={Colors.navy}>{t(s.dateKey)}</AppText>
             </View>
             <View style={styles.rows}>
               {s.times.map((t, i) => (
@@ -124,7 +132,7 @@ export default function MassScheduleScreen() {
         </View>
       ))}
     </View>
-  ), []);
+  ), [t]);
 
   const renderConfession = useCallback(() => (
     <View style={styles.section}>
@@ -144,14 +152,14 @@ export default function MassScheduleScreen() {
       <View style={styles.appointmentCard}>
         <Ionicons name="call-outline" size={20} color={Colors.gold} />
         <View style={{ flex: 1, marginLeft: Spacing.sm }}>
-          <AppText variant="headingSm" color={Colors.navy}>Humiling ng Appointment</AppText>
+          <AppText variant="headingSm" color={Colors.navy}>{t('massSchedule.requestAppointment')}</AppText>
           <AppText variant="bodySm" color={Colors.textSecondary}>
-            Para sa espesyal na kumpisal, makipag-ugnayan sa opisina ng parokya.
+            {t('massSchedule.appointmentHint')}
           </AppText>
         </View>
       </View>
     </View>
-  ), []);
+  ), [t]);
 
   const content = (
     <ScrollView
@@ -161,27 +169,27 @@ export default function MassScheduleScreen() {
     >
       <BackBar />
       <GradientView colors={[Colors.navyDark, Colors.navy]} style={styles.header}>
-        <AppText variant="displaySm" color={Colors.textInverse}>Iskedyul ng Misa</AppText>
-        <AppText variant="bodySm" color={Colors.goldLight}>Regular &amp; special Mass schedules</AppText>
+        <AppText variant="displaySm" color={Colors.textInverse}>{t('massSchedule.title')}</AppText>
+        <AppText variant="bodySm" color={Colors.goldLight}>{t('massSchedule.subtitle')}</AppText>
       </GradientView>
 
       {/* Tabs */}
       <View style={styles.tabRow}>
-        {TABS.map((t) => (
+        {TABS.map((tabKey) => (
           <TouchableOpacity
-            key={t}
-            onPress={() => setTab(t)}
-            style={[styles.tabBtn, tab === t && styles.tabBtnActive]}
+            key={tabKey}
+            onPress={() => setTab(tabKey)}
+            style={[styles.tabBtn, tab === tabKey && styles.tabBtnActive]}
             accessible
-            accessibilityLabel={t}
+            accessibilityLabel={t(TAB_LABEL_KEYS[tabKey])}
           >
             <AppText
               variant="label"
-              color={tab === t ? Colors.navy : Colors.textMuted}
+              color={tab === tabKey ? Colors.navy : Colors.textMuted}
             >
-              {t}
+              {t(TAB_LABEL_KEYS[tabKey])}
             </AppText>
-            {tab === t && <View style={styles.tabUnderline} />}
+            {tab === tabKey && <View style={styles.tabUnderline} />}
           </TouchableOpacity>
         ))}
       </View>

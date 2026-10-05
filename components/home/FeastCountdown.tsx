@@ -5,6 +5,7 @@ import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { AppText } from '../ui';
 import churchData from '../../data/church.json';
+import { useI18n } from '../../i18n';
 
 function getDaysUntilFeast(feastDay: string): number {
   const [month, day] = feastDay.split(' ');
@@ -20,6 +21,7 @@ function getDaysUntilFeast(feastDay: string): number {
 
 const FeastCountdown = () => {
   const days = useMemo(() => getDaysUntilFeast(churchData.feastDay), []);
+  const { t } = useI18n();
 
   return (
     <View style={styles.card}>
@@ -29,14 +31,14 @@ const FeastCountdown = () => {
         </View>
         <View style={styles.info}>
           <AppText variant="label" color={Colors.crimsonLight} style={styles.label}>
-            KAPISTAHAN NG SIMBAHAN
+            {t('home.parishFeastLabel')}
           </AppText>
           <AppText variant="headingSm" color={Colors.textInverse} numberOfLines={2}>
-            Kapistahan ni {churchData.patron}
+            {t('home.feastOf', { patron: churchData.patron })}
           </AppText>
           <AppText variant="caption" color={Colors.crimsonPale}>{churchData.feastDay}</AppText>
           <AppText variant="caption" color={Colors.crimsonPale} style={styles.novena}>
-            Magsimula ng nobena 9 araw bago
+            {t('home.novenaHint')}
           </AppText>
         </View>
       </View>
@@ -44,7 +46,7 @@ const FeastCountdown = () => {
         <AppText variant="displayMd" color={Colors.textInverse} style={styles.days}>
           {days}
         </AppText>
-        <AppText variant="caption" color={Colors.crimsonPale}>araw pa</AppText>
+        <AppText variant="caption" color={Colors.crimsonPale}>{t('home.daysLeft')}</AppText>
       </View>
     </View>
   );

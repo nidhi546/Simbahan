@@ -9,12 +9,13 @@ import WebLayout from '../../components/ui/WebLayout';
 import LiturgicalCalendarView from '../../components/calendar/LiturgicalCalendarView';
 import TodayReadings from '../../components/calendar/TodayReadings';
 import { useUiStore } from '../../store/uiStore';
+import { useI18n } from '../../i18n';
 
 type Tab = 'kalendaryo' | 'pagbasa';
 
-const TABS: { key: Tab; label: string }[] = [
-  { key: 'kalendaryo', label: 'Kalendaryo' },
-  { key: 'pagbasa', label: 'Pagbasa ng Araw' },
+const TABS: { key: Tab; labelKey: string }[] = [
+  { key: 'kalendaryo', labelKey: 'calendar.tabCalendar' },
+  { key: 'pagbasa', labelKey: 'calendar.tabReadings' },
 ];
 
 const isWeb = Platform.OS === 'web';
@@ -23,6 +24,7 @@ export default function CalendarScreen() {
   const [activeTab, setActiveTab] = useState<Tab>('kalendaryo');
   const handleTab = useCallback((key: Tab) => setActiveTab(key), []);
   const openSidebar = useUiStore((s) => s.openSidebar);
+  const { t } = useI18n();
 
   const header = (
     <View style={styles.switcherWrap}>
@@ -32,7 +34,7 @@ export default function CalendarScreen() {
           style={styles.menuBtn}
           activeOpacity={0.7}
           accessible
-          accessibilityLabel="Open menu"
+          accessibilityLabel={t('nav.openMenu')}
         >
           <Ionicons name="menu" size={24} color={Colors.navy} />
         </TouchableOpacity>
@@ -45,7 +47,7 @@ export default function CalendarScreen() {
               key={tab.key}
               onPress={() => handleTab(tab.key)}
               accessible
-              accessibilityLabel={tab.label}
+              accessibilityLabel={t(tab.labelKey)}
               accessibilityRole="tab"
               activeOpacity={0.8}
               style={[styles.switcherBtn, active && styles.switcherBtnActive]}
@@ -55,7 +57,7 @@ export default function CalendarScreen() {
                 color={active ? Colors.textInverse : Colors.textMuted}
                 style={styles.switcherLabel}
               >
-                {tab.label}
+                {t(tab.labelKey)}
               </AppText>
             </TouchableOpacity>
           );

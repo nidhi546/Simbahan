@@ -5,15 +5,17 @@ import { router } from 'expo-router';
 import { Colors } from '../../constants/Colors';
 import { ScreenHeader } from '../../components/ui';
 import TodayReadings from '../../components/calendar/TodayReadings';
+import { useI18n } from '../../i18n';
 
 export default function TodayReadingsScreen() {
   const handleBack = useCallback(() => router.back(), []);
+  const { t } = useI18n();
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <ScreenHeader
-        title="Pagbasa ng Araw"
-        subtitle="Mabuting Balita"
+        title={t('readings.todayTitle')}
+        subtitle={t('readings.todaySubtitle')}
         onBack={handleBack}
       />
       <View style={styles.content}>

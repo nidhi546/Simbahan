@@ -6,6 +6,7 @@ import { Colors } from '../../constants/Colors';
 import { Spacing, Radius, Shadows } from '../../constants/Layout';
 import { AppText, Badge } from '../ui';
 import { useChurchStore } from '../../store/churchStore';
+import { useI18n } from '../../i18n';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -44,6 +45,7 @@ function getNextMass(schedule: { day: string; times: string[]; dayIndex: number 
 
 const NextMassCard = () => {
   const massSchedule = useChurchStore((s) => s.massSchedule);
+  const { t } = useI18n();
 
   const { time, day } = useMemo(() => getNextMass(massSchedule as any), [massSchedule]);
 
@@ -53,27 +55,27 @@ const NextMassCard = () => {
     <TouchableOpacity
       onPress={handlePress}
       accessible
-      accessibilityLabel="View mass schedule"
+      accessibilityLabel={t('home.viewMassScheduleA11y')}
       activeOpacity={0.85}
       style={styles.card}
     >
       <View style={styles.leftBorder} />
       <View style={styles.content}>
         <AppText variant="label" color={Colors.gold} style={styles.label}>
-          SUSUNOD NA MISA
+          {t('home.nextMassLabel')}
         </AppText>
         <AppText variant="displayMd" color={Colors.navy} style={styles.time}>
           {time}
         </AppText>
         <View style={styles.row}>
-          <Badge label={day} variant="navy" size="sm" />
+          <Badge label={DAYS.includes(day) ? t(`massSchedule.${day.toLowerCase()}`) : day} variant="navy" size="sm" />
           <AppText variant="bodySm" color={Colors.textMuted} style={styles.presider}>
             Fr. Jose Maria Santos
           </AppText>
         </View>
       </View>
       <View style={styles.linkWrap}>
-        <AppText variant="label" color={Colors.gold}>Tingnan lahat</AppText>
+        <AppText variant="label" color={Colors.gold}>{t('home.seeAll')}</AppText>
         <Ionicons name="arrow-forward" size={14} color={Colors.gold} />
       </View>
     </TouchableOpacity>

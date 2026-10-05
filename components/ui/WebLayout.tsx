@@ -13,18 +13,19 @@ import { Colors } from "../../constants/Colors";
 import { Spacing, Radius } from "../../constants/Layout";
 import AppText from "./AppText";
 import { useAuthStore } from "../../store/authStore";
+import { useI18n } from "../../i18n";
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
 
 const NAV_ITEMS: {
   href: string;
-  label: string;
+  labelKey: string;
   icon: IoniconsName;
   activeIcon: IoniconsName;
 }[] = [
-  { href: "/home",        label: "Tahanan",  icon: "home-outline",   activeIcon: "home"   },
-  { href: "/(tabs)/more", label: "Higit Pa", icon: "grid-outline",   activeIcon: "grid"   },
-  { href: "/profile",     label: "Profile",  icon: "person-outline", activeIcon: "person" },
+  { href: "/home",        labelKey: "nav.menuHome",    icon: "home-outline",   activeIcon: "home"   },
+  { href: "/(tabs)/more", labelKey: "nav.menuMore",    icon: "grid-outline",   activeIcon: "grid"   },
+  { href: "/profile",     labelKey: "nav.menuProfile", icon: "person-outline", activeIcon: "person" },
 ];
 
 const SIDEBAR_W = 240;
@@ -80,6 +81,7 @@ function WebSidebar({ children }: Props) {
   const currentUser = useAuthStore((s) => s.currentUser);
   const logout = useAuthStore((s) => s.logout);
   const pathname = usePathname();
+  const { t } = useI18n();
 
   const handleLogout = useCallback(async () => {
     await logout();
@@ -88,12 +90,13 @@ function WebSidebar({ children }: Props) {
 
   if (!isAuthenticated) return <>{children}</>;
 
-  const activeLabel =
+  const activeItem =
     NAV_ITEMS.find((n) => {
       const clean = n.href.replace("/(tabs)", "");
       return pathname === n.href || pathname === clean ||
         (clean !== "/" && clean !== "/home" && pathname.startsWith(clean));
-    })?.label ?? "Simbahan";
+    });
+  const activeLabel = activeItem ? t(activeItem.labelKey) : "Simbahan";
 
   return (
     <View style={styles.root}>
@@ -104,7 +107,7 @@ function WebSidebar({ children }: Props) {
             ✝ Simbahan
           </AppText>
           <AppText variant="caption" color={Colors.gold} style={styles.logoTagline}>
-            Your parish, in your pocket
+            {t("nav.tagline")}
           </AppText>
         </View>
 
@@ -121,7 +124,7 @@ function WebSidebar({ children }: Props) {
               <SidebarItem
                 key={item.href}
                 href={item.href}
-                label={item.label}
+                label={t(item.labelKey)}
                 icon={item.icon}
                 activeIcon={item.activeIcon}
                 isActive={isActive}
@@ -142,20 +145,20 @@ function WebSidebar({ children }: Props) {
                 {currentUser?.firstName} {currentUser?.lastName}
               </AppText>
               <AppText variant="caption" color={Colors.textMuted} numberOfLines={1}>
-                {currentUser?.role ?? "member"}
+                {currentUser?.role ?? t("nav.defaultRole")}
               </AppText>
             </View>
           </View>
           <TouchableOpacity
             onPress={handleLogout}
             accessible
-            accessibilityLabel="Logout"
+            accessibilityLabel={t("nav.logoutA11y")}
             activeOpacity={0.75}
             style={styles.logoutBtn}
           >
             <Ionicons name="log-out-outline" size={18} color={Colors.textMuted} />
             <AppText variant="bodySm" color={Colors.textMuted} style={styles.logoutText}>
-              Logout
+              {t("nav.logout")}
             </AppText>
           </TouchableOpacity>
         </View>
@@ -166,7 +169,7 @@ function WebSidebar({ children }: Props) {
         <View style={styles.topBar}>
           <AppText variant="bodyMd" color={Colors.textMuted}>{activeLabel}</AppText>
           <View style={styles.topBarRight}>
-            <TouchableOpacity style={styles.topBarIcon} accessible accessibilityLabel="Notifications">
+            <TouchableOpacity style={styles.topBarIcon} accessible accessibilityLabel={t("nav.notificationsA11y")}>
               <Ionicons name="notifications-outline" size={20} color={Colors.textSecondary} />
             </TouchableOpacity>
             <View style={styles.topBarAvatar}>

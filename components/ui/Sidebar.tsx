@@ -9,31 +9,35 @@ import { Spacing, Radius } from '../../constants/Layout';
 import AppText from './AppText';
 import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
+import { useCountryStore, COUNTRIES } from '../../store/countryStore';
 import churchData from '../../data/church.json';
+import { useI18n } from '../../i18n';
 
 const SIDEBAR_W = 280;
 
 type NavItem = {
-  label: string;
+  labelKey: string;
   icon: React.ComponentProps<typeof Ionicons>['name'];
   activeIcon: React.ComponentProps<typeof Ionicons>['name'];
   route: string;
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Tahanan',   icon: 'home-outline',   activeIcon: 'home',   route: '/home'           },
-  { label: 'Higit Pa',  icon: 'grid-outline',   activeIcon: 'grid',   route: '/(tabs)/more'    },
-  { label: 'Profile',   icon: 'person-outline', activeIcon: 'person', route: '/profile'        },
+  { labelKey: 'nav.menuHome',    icon: 'home-outline',   activeIcon: 'home',   route: '/home'           },
+  { labelKey: 'nav.menuMore',    icon: 'grid-outline',   activeIcon: 'grid',   route: '/(tabs)/more'    },
+  { labelKey: 'nav.menuProfile', icon: 'person-outline', activeIcon: 'person', route: '/profile'        },
 ];
 
 const NavRow = React.memo(({ item, isActive, onPress }: {
   item: NavItem; isActive: boolean; onPress: (route: string) => void;
-}) => (
+}) => {
+  const { t } = useI18n();
+  return (
   <TouchableOpacity
     onPress={() => onPress(item.route)}
     activeOpacity={0.75}
     accessible
-    accessibilityLabel={item.label}
+    accessibilityLabel={t(item.labelKey)}
     style={[styles.navItem, isActive && styles.navItemActive]}
   >
     {isActive && <View style={styles.activeBar} />}
@@ -49,10 +53,11 @@ const NavRow = React.memo(({ item, isActive, onPress }: {
       color={isActive ? Colors.navy : Colors.textSecondary}
       style={isActive ? styles.navLabelActive : undefined}
     >
-      {item.label}
+      {t(item.labelKey)}
     </AppText>
   </TouchableOpacity>
-));
+  );
+});
 
 export default function Sidebar() {
   const insets = useSafeAreaInsets();
@@ -61,6 +66,9 @@ export default function Sidebar() {
   const currentUser = useAuthStore((s) => s.currentUser);
   const logout = useAuthStore((s) => s.logout);
   const pathname = usePathname();
+  const { t, language, setLanguage } = useI18n();
+  const country = useCountryStore((s) => s.country);
+  const languageOptions = COUNTRIES[country ?? 'PH'].availableLanguages;
 
   const translateX = useSharedValue(-SIDEBAR_W);
   const overlayOpacity = useSharedValue(0);
@@ -103,7 +111,7 @@ export default function Sidebar() {
           <View style={styles.headerText}>
             <AppText variant="headingSm" color={Colors.navy}>{churchData.name}</AppText>
             <AppText variant="caption" color={Colors.textMuted} numberOfLines={1}>
-              {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'Your parish, in your pocket'}
+              {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : t('nav.tagline')}
             </AppText>
           </View>
           <TouchableOpacity onPress={closeSidebar} style={styles.closeBtn} activeOpacity={0.7}>
@@ -120,15 +128,46 @@ export default function Sidebar() {
               pathname === item.route ||
               pathname === cleanRoute ||
               (item.route !== '/home' && cleanRoute !== '/' && pathname.startsWith(cleanRoute));
-            return <NavRow key={item.label} item={item} isActive={isActive} onPress={navigate} />;
+            return <NavRow key={item.route} item={item} isActive={isActive} onPress={navigate} />;
           })}
         </ScrollView>
 
         <View style={[styles.drawerFooter, { paddingBottom: insets.bottom + Spacing.md }]}>
           <View style={styles.divider} />
-          <TouchableOpacity onPress={handleLogout} activeOpacity={0.75} accessible accessibilityLabel="Logout" style={styles.logoutBtn}>
+          <View style={styles.languageSection}>
+            <View style={styles.languageHeader}>
+              <Ionicons name="language-outline" size={18} color={Colors.textMuted} />
+              <AppText variant="caption" color={Colors.textMuted}>{t('nav.language')}</AppText>
+            </View>
+            {languageOptions.map((opt) => {
+              const selected = opt.code === language;
+              return (
+                <TouchableOpacity
+                  key={opt.code}
+                  onPress={() => !selected && setLanguage(opt.code)}
+                  activeOpacity={0.75}
+                  accessible
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected }}
+                  accessibilityLabel={t('nav.languageA11y', { language: opt.nativeName })}
+                  style={[styles.languageOption, selected && styles.languageOptionActive]}
+                >
+                  <AppText
+                    variant="bodyMd"
+                    color={selected ? Colors.navy : Colors.textSecondary}
+                    style={selected ? styles.navLabelActive : undefined}
+                  >
+                    {opt.nativeName}
+                  </AppText>
+                  {selected && <Ionicons name="checkmark-circle" size={20} color={Colors.gold} />}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          <View style={styles.divider} />
+          <TouchableOpacity onPress={handleLogout} activeOpacity={0.75} accessible accessibilityLabel={t('nav.logoutA11y')} style={styles.logoutBtn}>
             <Ionicons name="log-out-outline" size={20} color={Colors.crimson} />
-            <AppText variant="bodyMd" color={Colors.crimson}>Mag-logout</AppText>
+            <AppText variant="bodyMd" color={Colors.crimson}>{t('nav.logout')}</AppText>
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -157,5 +196,13 @@ const styles = StyleSheet.create({
   navIconWrapActive: { backgroundColor: Colors.goldPale },
   navLabelActive: { fontFamily: 'DMSans_500Medium' },
   drawerFooter: { paddingTop: Spacing.sm },
+  languageSection: { paddingVertical: Spacing.sm },
+  languageHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs, paddingHorizontal: Spacing.lg, paddingBottom: Spacing.xs },
+  languageOption: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md,
+    marginHorizontal: Spacing.sm, borderRadius: Radius.sm,
+  },
+  languageOptionActive: { backgroundColor: Colors.goldPale },
   logoutBtn: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingHorizontal: Spacing.lg, paddingVertical: Spacing.md },
 });

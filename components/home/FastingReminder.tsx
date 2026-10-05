@@ -6,6 +6,7 @@ import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { AppText } from '../ui';
 import { useChurchStore } from '../../store/churchStore';
+import { useI18n } from '../../i18n';
 
 type Season = string;
 
@@ -25,6 +26,7 @@ function getCurrentSeason(calendar: { season: string; startDate: string; endDate
 
 const FastingReminder = () => {
   const liturgicalCalendar = useChurchStore((s) => s.liturgicalCalendar);
+  const { t } = useI18n();
   const season = useMemo(() => getCurrentSeason(liturgicalCalendar), [liturgicalCalendar]);
   const show = useMemo(() => shouldShowFasting(season), [season]);
 
@@ -34,14 +36,14 @@ const FastingReminder = () => {
 
   const isFriday = new Date().getDay() === 5;
   const message = isFriday
-    ? 'Ngayon ay Biyernes. Araw ito ng abstinensya at pagaayuno.'
-    : 'Sa panahon ng Kuwaresma, inaanyayahan tayong mag-ayuno at mag-abstinensya.';
+    ? t('home.fastingFridayMessage')
+    : t('home.fastingLentMessage');
 
   return (
     <TouchableOpacity
       onPress={handlePress}
       accessible
-      accessibilityLabel="Fasting reminder"
+      accessibilityLabel={t('home.fastingA11y')}
       activeOpacity={0.85}
       style={styles.card}
     >
@@ -50,13 +52,13 @@ const FastingReminder = () => {
       </View>
       <View style={styles.content}>
         <AppText variant="headingSm" color={Colors.navy}>
-          {isFriday ? 'Paalala: Biyernes' : 'Paalala: Kuwaresma'}
+          {isFriday ? t('home.fastingFridayTitle') : t('home.fastingLentTitle')}
         </AppText>
         <AppText variant="bodySm" color={Colors.textSecondary} numberOfLines={2}>
           {message}
         </AppText>
         <AppText variant="label" color={Colors.sage} style={styles.link}>
-          Alamin pa →
+          {t('home.learnMore')}
         </AppText>
       </View>
     </TouchableOpacity>

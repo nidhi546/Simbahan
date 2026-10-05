@@ -7,25 +7,27 @@ import { Spacing, Radius } from '../../constants/Layout';
 import { AppText } from '../ui';
 import { useChurchStore } from '../../store/churchStore';
 import SaintOfTheDay from './SaintOfTheDay';
+import { useI18n } from '../../i18n';
 
 const TodayReadings = () => {
   const reading = useChurchStore((s) => s.todayReadings);
+  const { t } = useI18n();
 
   const handleShare = useCallback(async () => {
     if (!reading) return;
     try {
       await Share.share({
         message: `${reading.title}\n\n${reading.gospel.reference}\n\n"${reading.gospel.text}"\n\n— Simbahan App`,
-        title: 'Mabuting Balita ngayon',
+        title: t('readings.shareTitle'),
       });
     } catch (_) {}
-  }, [reading]);
+  }, [reading, t]);
 
   if (!reading) {
     return (
       <View style={styles.empty}>
         <AppText variant="bodyMd" color={Colors.textMuted}>
-          Walang pagbasa para ngayon.
+          {t('readings.noReadingsToday')}
         </AppText>
       </View>
     );
@@ -52,7 +54,7 @@ const TodayReadings = () => {
       <View style={StyleSheet.flatten([styles.readingCard, styles.firstReadingCard])}>
         <View style={styles.cardHeader}>
           <AppText variant="label" color={Colors.gold} style={styles.cardLabel}>
-            UNANG PAGBASA
+            {t('readings.firstReadingLabel')}
           </AppText>
           <AppText variant="bodySm" color={Colors.textMuted}>{reading.firstReading.reference}</AppText>
         </View>
@@ -67,7 +69,7 @@ const TodayReadings = () => {
       {/* Psalm */}
       <View style={styles.psalmCard}>
         <AppText variant="label" color={Colors.sage} style={styles.cardLabel}>
-          SALMO
+          {t('readings.psalmLabel')}
         </AppText>
         <AppText variant="bodySm" color={Colors.textMuted} style={styles.psalmRef}>
           {reading.psalm.reference}
@@ -87,7 +89,7 @@ const TodayReadings = () => {
         <View style={StyleSheet.flatten([styles.readingCard, styles.secondReadingCard])}>
           <View style={styles.cardHeader}>
             <AppText variant="label" color={Colors.navyLight} style={styles.cardLabel}>
-              IKALAWANG PAGBASA
+              {t('readings.secondReadingLabel')}
             </AppText>
             <AppText variant="bodySm" color={Colors.textMuted}>
               {reading.secondReading.reference}
@@ -107,7 +109,7 @@ const TodayReadings = () => {
         <View style={styles.gospelBorder} />
         <View style={styles.gospelBody}>
           <AppText variant="label" color={Colors.crimson} style={styles.cardLabel}>
-            MABUTING BALITA
+            {t('readings.gospelLabel')}
           </AppText>
           <AppText variant="headingMd" color={Colors.navy} style={styles.gospelTitle}>
             {reading.gospel.reference}
@@ -124,7 +126,7 @@ const TodayReadings = () => {
         <View style={styles.reflectionHeader}>
           <Ionicons name="bulb-outline" size={16} color={Colors.sage} />
           <AppText variant="label" color={Colors.sage} style={styles.cardLabel}>
-            PAGNINILAY
+            {t('readings.reflectionLabel')}
           </AppText>
         </View>
         <AppText
@@ -133,8 +135,7 @@ const TodayReadings = () => {
           style={StyleSheet.flatten([styles.readingText, styles.reflectionText])}
           selectable
         >
-          "Ang salita ng Diyos ay buhay at mabisa. Hayaan nating ang Mabuting Balita ngayon ay
-          magbago ng ating puso at gabayan ang ating mga hakbang sa araw na ito."
+          {t('readings.defaultReflection')}
         </AppText>
       </View>
 
@@ -142,13 +143,13 @@ const TodayReadings = () => {
       <TouchableOpacity
         onPress={handleShare}
         accessible
-        accessibilityLabel="Ibahagi ang Mabuting Balita"
+        accessibilityLabel={t('readings.shareGospel')}
         activeOpacity={0.8}
         style={styles.shareBtn}
       >
         <Ionicons name="share-outline" size={18} color={Colors.textInverse} />
         <AppText variant="label" color={Colors.textInverse} style={styles.shareBtnText}>
-          Ibahagi ang Mabuting Balita
+          {t('readings.shareGospel')}
         </AppText>
       </TouchableOpacity>
 

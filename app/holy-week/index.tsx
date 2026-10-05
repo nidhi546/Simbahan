@@ -9,59 +9,60 @@ import WebLayout from '../../components/ui/WebLayout';
 import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { useUiStore } from '../../store/uiStore';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 
 const HOLY_DAYS = [
   {
     id: 'palm',
-    day: 'Palm Sunday',
-    tagalog: 'Linggo ng Palaspas',
+    dayKey: 'holyWeek.palm.day',
+    altNameKey: 'holyWeek.palm.altName',
     color: Colors.sage,
     fasting: false,
-    description: 'Ipinagdiriwang ang pagpasok ni Hesus sa Jerusalem. Ang mga tao ay nagwagayway ng mga palaspas.',
-    schedule: 'Misa ng Palaspas: 6AM, 8AM, 10AM, 12NN, 6PM',
-    traditions: 'Pagpapala ng mga palaspas. Prusisyon bago ang Misa.',
+    descriptionKey: 'holyWeek.palm.description',
+    scheduleKey: 'holyWeek.palm.schedule',
+    traditionsKey: 'holyWeek.palm.traditions',
   },
   {
     id: 'thursday',
-    day: 'Holy Thursday',
-    tagalog: 'Huwebes Santo',
+    dayKey: 'holyWeek.thursday.day',
+    altNameKey: 'holyWeek.thursday.altName',
     color: Colors.gold,
     fasting: false,
-    description: 'Huling Hapunan ni Hesus kasama ang Kanyang mga alagad. Institusyon ng Eukaristiya at Pagpapari.',
-    schedule: 'Misa ng Huling Hapunan: 6PM. Visita Iglesia pagkatapos.',
-    traditions: 'Paghuhugas ng paa. Reposisyon ng Santissimo Sacramento.',
+    descriptionKey: 'holyWeek.thursday.description',
+    scheduleKey: 'holyWeek.thursday.schedule',
+    traditionsKey: 'holyWeek.thursday.traditions',
   },
   {
     id: 'friday',
-    day: 'Good Friday',
-    tagalog: 'Biyernes Santo',
+    dayKey: 'holyWeek.friday.day',
+    altNameKey: 'holyWeek.friday.altName',
     color: Colors.crimson,
     fasting: true,
-    description: 'Pagpapaalaala sa pagpapasakit at kamatayan ni Hesukristo sa krus para sa ating kaligtasan.',
-    schedule: 'Serbisyo ng Tatlong Oras: 12NN–3PM. Prusisyon ng Santo Entierro: 6PM.',
-    traditions: 'Araw ng pag-aayuno at abstinensya. Visita Iglesia. Pagninilay sa Pitong Salita.',
+    descriptionKey: 'holyWeek.friday.description',
+    scheduleKey: 'holyWeek.friday.schedule',
+    traditionsKey: 'holyWeek.friday.traditions',
   },
   {
     id: 'saturday',
-    day: 'Black Saturday',
-    tagalog: 'Sabado de Gloria',
+    dayKey: 'holyWeek.saturday.day',
+    altNameKey: 'holyWeek.saturday.altName',
     color: Colors.textMuted,
     fasting: false,
-    description: 'Araw ng katahimikan at pagninilay. Hinihintay ang Muling Pagkabuhay ni Kristo.',
-    schedule: 'Vigilia Pascual: 8PM o 10PM.',
-    traditions: 'Pagpapala ng apoy at kandila. Pagbabasa ng mga hula. Pagbibinyag ng mga katekumeno.',
+    descriptionKey: 'holyWeek.saturday.description',
+    scheduleKey: 'holyWeek.saturday.schedule',
+    traditionsKey: 'holyWeek.saturday.traditions',
   },
   {
     id: 'easter',
-    day: 'Easter Sunday',
-    tagalog: 'Linggo ng Pagkabuhay',
+    dayKey: 'holyWeek.easter.day',
+    altNameKey: 'holyWeek.easter.altName',
     color: Colors.sage,
     fasting: false,
-    description: 'Ipinagdiriwang ang Muling Pagkabuhay ni Hesukristo — pinakamahalagang kapistahan ng Simbahang Katoliko.',
-    schedule: 'Salubong: 5AM. Misa: 6AM, 8AM, 10AM, 12NN, 6PM.',
-    traditions: 'Salubong — pagtatagpo ng imahen ni Kristo at ng Mahal na Ina.',
+    descriptionKey: 'holyWeek.easter.description',
+    scheduleKey: 'holyWeek.easter.schedule',
+    traditionsKey: 'holyWeek.easter.traditions',
   },
 ];
 
@@ -75,9 +76,10 @@ const CHURCHES = [
   'Ermita Church',
 ];
 
-const VISITA_PRAYER = 'Panginoon, habang binibisita namin ang mga simbahang ito, nawa\'y mapalalim ang aming pananampalataya at pagmamahal sa Inyo. Amen.';
+const VISITA_PRAYER_KEY = 'holyWeek.visitaPrayer';
 
 function HolyDayCard({ item }: { item: typeof HOLY_DAYS[number] }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   return (
     <View style={styles.dayCard}>
@@ -85,30 +87,30 @@ function HolyDayCard({ item }: { item: typeof HOLY_DAYS[number] }) {
         onPress={() => setOpen((v) => !v)}
         style={styles.dayHeader}
         accessible
-        accessibilityLabel={item.day}
+        accessibilityLabel={t(item.dayKey)}
       >
         <View style={[styles.dayDot, { backgroundColor: item.color }]} />
         <View style={{ flex: 1 }}>
-          <AppText variant="headingSm" color={Colors.navy}>{item.day}</AppText>
-          <AppText variant="caption" color={Colors.textMuted}>{item.tagalog}</AppText>
+          <AppText variant="headingSm" color={Colors.navy}>{t(item.dayKey)}</AppText>
+          <AppText variant="caption" color={Colors.textMuted}>{t(item.altNameKey)}</AppText>
         </View>
         {item.fasting && (
           <View style={styles.fastingBadge}>
-            <AppText variant="caption" color={Colors.crimson}>Pag-aayuno</AppText>
+            <AppText variant="caption" color={Colors.crimson}>{t('holyWeek.fasting')}</AppText>
           </View>
         )}
         <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color={Colors.textMuted} />
       </TouchableOpacity>
       {open && (
         <View style={styles.dayBody}>
-          <AppText variant="bodyMd" color={Colors.textSecondary}>{item.description}</AppText>
+          <AppText variant="bodyMd" color={Colors.textSecondary}>{t(item.descriptionKey)}</AppText>
           <View style={styles.infoRow}>
             <Ionicons name="time-outline" size={14} color={Colors.gold} />
-            <AppText variant="bodySm" color={Colors.textPrimary} style={{ flex: 1 }}>{item.schedule}</AppText>
+            <AppText variant="bodySm" color={Colors.textPrimary} style={{ flex: 1 }}>{t(item.scheduleKey)}</AppText>
           </View>
           <View style={styles.infoRow}>
             <Ionicons name="star-outline" size={14} color={Colors.gold} />
-            <AppText variant="bodySm" color={Colors.textPrimary} style={{ flex: 1 }}>{item.traditions}</AppText>
+            <AppText variant="bodySm" color={Colors.textPrimary} style={{ flex: 1 }}>{t(item.traditionsKey)}</AppText>
           </View>
         </View>
       )}
@@ -117,26 +119,27 @@ function HolyDayCard({ item }: { item: typeof HOLY_DAYS[number] }) {
 }
 
 export default function HolyWeekScreen() {
+  const { t } = useI18n();
   const showToast = useUiStore((s) => s.showToast);
   const [visitaStarted, setVisitaStarted] = useState(false);
 
   const handleVisita = useCallback(() => {
     setVisitaStarted(true);
-    showToast('Simulan ang Visita Iglesia — Maligayang paglalakbay!', 'info');
-  }, [showToast]);
+    showToast(t('holyWeek.visitaToast'), 'info');
+  }, [showToast, t]);
 
   const content = (
     <ScrollView style={styles.screen} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       <BackBar />
       <GradientView colors={[Colors.crimson, Colors.navy]} style={styles.header}>
-        <AppText variant="displaySm" color={Colors.textInverse}>Mahal na Araw</AppText>
-        <AppText variant="bodySm" color="rgba(255,255,255,0.75)">Holy Week Guide</AppText>
+        <AppText variant="displaySm" color={Colors.textInverse}>{t('holyWeek.title')}</AppText>
+        <AppText variant="bodySm" color="rgba(255,255,255,0.75)">{t('holyWeek.subtitle')}</AppText>
       </GradientView>
 
       {/* Timeline */}
       <View style={styles.section}>
         <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>
-          Mga Araw ng Mahal na Araw
+          {t('holyWeek.daysTitle')}
         </AppText>
         <View style={styles.timeline}>
           {HOLY_DAYS.map((d, i) => (
@@ -156,7 +159,7 @@ export default function HolyWeekScreen() {
             <AppText variant="headingSm" color={Colors.crimson}>Visita Iglesia</AppText>
           </View>
           <AppText variant="bodySm" color={Colors.textSecondary}>
-            Bisitahin ang pitong simbahan sa Biyernes Santo bilang pagpapahayag ng pananampalataya.
+            {t('holyWeek.visitaDescription')}
           </AppText>
           <View style={styles.churchList}>
             {CHURCHES.map((c, i) => (
@@ -170,9 +173,9 @@ export default function HolyWeekScreen() {
           </View>
           {visitaStarted && (
             <View style={styles.visitaPrayer}>
-              <AppText variant="caption" color={Colors.gold}>✦ Panalangin</AppText>
+              <AppText variant="caption" color={Colors.gold}>{t('holyWeek.prayer')}</AppText>
               <AppText variant="bodySm" color={Colors.textSecondary} style={{ fontStyle: 'italic' }}>
-                {VISITA_PRAYER}
+                {t(VISITA_PRAYER_KEY)}
               </AppText>
             </View>
           )}
@@ -180,11 +183,11 @@ export default function HolyWeekScreen() {
             onPress={handleVisita}
             style={styles.visitaBtn}
             accessible
-            accessibilityLabel="Simulan ang Visita Iglesia"
+            accessibilityLabel={t('holyWeek.startVisitaA11y')}
           >
             <Ionicons name="walk-outline" size={18} color={Colors.textInverse} />
             <AppText variant="label" color={Colors.textInverse}>
-              {visitaStarted ? 'Ipinagpapatuloy...' : 'Simulan ang Visita'}
+              {visitaStarted ? t('holyWeek.inProgress') : t('holyWeek.startVisita')}
             </AppText>
           </TouchableOpacity>
         </View>

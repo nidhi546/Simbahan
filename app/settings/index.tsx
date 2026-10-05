@@ -14,9 +14,17 @@ import { useTheme } from '../../theme/ThemeContext';
 import { useCountryStore, COUNTRIES, ENABLE_COUNTRY_SELECTION } from '../../store/countryStore';
 import churchData from '../../data/church.json';
 import BackBar from '../../components/ui/BackBar';
+import LanguageToggle from '../../components/ui/LanguageToggle';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 const APP_VERSION = '1.0.0 (Module 10)';
+
+const TEXT_SIZE_KEYS: Record<'Small' | 'Normal' | 'Large', string> = {
+  Small: 'settings.textSizeSmall',
+  Normal: 'settings.textSizeNormal',
+  Large: 'settings.textSizeLarge',
+};
 
 function SettingRow({ icon, label, value, onPress, right }: {
   icon: React.ComponentProps<typeof Ionicons>['name'];
@@ -60,6 +68,7 @@ function SectionCard({ title, children }: { title: string; children: React.React
 
 export default function SettingsScreen() {
   const { theme, mode, toggleTheme } = useTheme();
+  const { t } = useI18n();
   const logout = useAuthStore((s) => s.logout);
   const settings = useModule10Store((s) => s.settings);
   const updateSettings = useModule10Store((s) => s.updateSettings);
@@ -74,12 +83,12 @@ export default function SettingsScreen() {
 
   const handleChangeCountry = useCallback(() => {
     Alert.alert(
-      'Change Country',
-      'This will reset your country and language selection. Continue?',
+      t('settings.changeCountry'),
+      t('settings.changeCountryMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Reset',
+          text: t('settings.reset'),
           style: 'destructive',
           onPress: async () => {
             await resetCountry();
@@ -88,7 +97,7 @@ export default function SettingsScreen() {
         },
       ],
     );
-  }, [resetCountry]);
+  }, [resetCountry, t]);
 
   const handleChangeLanguage = useCallback(() => {
     router.push('/language-select' as never);
@@ -100,17 +109,17 @@ export default function SettingsScreen() {
       return;
     }
     Alert.alert(
-      'Mag-logout',
-      'Sigurado ka bang gusto mong mag-logout?',
+      t('auth.logout'),
+      t('settings.logoutConfirm'),
       [
-        { text: 'Kanselahin', style: 'cancel' },
-        { text: 'Mag-logout', style: 'destructive', onPress: async () => {
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('auth.logout'), style: 'destructive', onPress: async () => {
           await logout();
           router.replace('/(auth)/login');
         }},
       ]
     );
-  }, [logout]);
+  }, [logout, t]);
 
   const toggle = useCallback((key: keyof typeof settings.notif) =>
     updateNotifSettings({ [key]: !settings.notif[key] }), [settings.notif, updateNotifSettings]);
@@ -126,16 +135,16 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <GradientView colors={[theme.primaryDark, theme.primary]} style={styles.header}>
-          <AppText variant="displaySm" color={theme.textInverse}>Mga Setting</AppText>
-          <AppText variant="bodySm" color={theme.accentLight}>App preferences</AppText>
+          <AppText variant="displaySm" color={theme.textInverse}>{t('settings.title')}</AppText>
+          <AppText variant="bodySm" color={theme.accentLight}>{t('settings.subtitle')}</AppText>
         </GradientView>
 
         {/* Appearance — dark mode toggle */}
-        <SectionCard title="Hitsura">
+        <SectionCard title={t('settings.theme')}>
           <SettingRow
             icon={mode === 'dark' ? 'moon' : 'sunny-outline'}
-            label="Dark Mode"
-            value={mode === 'dark' ? 'Naka-on' : 'Naka-off'}
+            label={t('settings.darkMode')}
+            value={mode === 'dark' ? t('settings.on') : t('settings.off')}
             right={
               <Switch
                 value={mode === 'dark'}
@@ -143,35 +152,35 @@ export default function SettingsScreen() {
                 trackColor={{ false: theme.border, true: theme.primary }}
                 thumbColor={theme.textInverse}
                 accessible
-                accessibilityLabel="Toggle dark mode"
+                accessibilityLabel={t('settings.toggleDarkModeA11y')}
               />
             }
           />
         </SectionCard>
 
         {/* Account */}
-        <SectionCard title="Account">
-          <SettingRow icon="person-outline" label="I-edit ang Profile" onPress={() => router.push('/profile/edit' as never)} />
+        <SectionCard title={t('settings.account')}>
+          <SettingRow icon="person-outline" label={t('profile.edit')} onPress={() => router.push('/profile/edit' as never)} />
           {divider}
-          <SettingRow icon="lock-closed-outline" label="Baguhin ang Password" onPress={() => setPwVisible(true)} />
+          <SettingRow icon="lock-closed-outline" label={t('settings.changePassword')} onPress={() => setPwVisible(true)} />
           {divider}
-          <SettingRow icon="business-outline" label="Aking Simbahan" value={churchData.name} />
+          <SettingRow icon="business-outline" label={t('settings.myChurch')} value={churchData.name} />
         </SectionCard>
 
         {/* Notifications */}
-        <SectionCard title="Mga Abiso">
+        <SectionCard title={t('settings.notifications')}>
           {([
-            ['announcements',    'Mga Anunsyo',               'newspaper-outline'    ],
-            ['events',           'Mga Kaganapan',              'star-outline'         ],
-            ['sacraments',       'Mga Sakramento',             'water-outline'        ],
-            ['dailyReadings',    'Pang-araw-araw na Pagbasa',  'book-outline'         ],
-            ['fastingReminders', 'Paalala ng Pag-aayuno',      'alert-circle-outline' ],
-          ] as [keyof typeof settings.notif, string, React.ComponentProps<typeof Ionicons>['name']][]).map(([key, label, icon], i) => (
+            ['announcements',    'settings.notifAnnouncements',    'newspaper-outline'    ],
+            ['events',           'settings.notifEvents',           'star-outline'         ],
+            ['sacraments',       'settings.notifSacraments',       'water-outline'        ],
+            ['dailyReadings',    'settings.notifDailyReadings',    'book-outline'         ],
+            ['fastingReminders', 'settings.notifFastingReminders', 'alert-circle-outline' ],
+          ] as [keyof typeof settings.notif, string, React.ComponentProps<typeof Ionicons>['name']][]).map(([key, labelKey, icon], i) => (
             <React.Fragment key={key}>
               {i > 0 && divider}
               <SettingRow
                 icon={icon}
-                label={label}
+                label={t(labelKey)}
                 right={
                   <Switch
                     value={settings.notif[key]}
@@ -179,7 +188,7 @@ export default function SettingsScreen() {
                     trackColor={{ false: theme.border, true: theme.primary }}
                     thumbColor={theme.textInverse}
                     accessible
-                    accessibilityLabel={label}
+                    accessibilityLabel={t(labelKey)}
                   />
                 }
               />
@@ -188,19 +197,19 @@ export default function SettingsScreen() {
         </SectionCard>
 
         {/* Preferences */}
-        <SectionCard title="Mga Kagustuhan">
+        <SectionCard title={t('settings.preferences')}>
           {ENABLE_COUNTRY_SELECTION && (
             <>
               <SettingRow
                 icon="globe-outline"
-                label="Country"
-                value={countryConfig ? `${countryConfig.flag}  ${countryConfig.name}` : 'Not set'}
+                label={t('settings.country')}
+                value={countryConfig ? `${countryConfig.flag}  ${countryConfig.name}` : t('settings.notSet')}
                 onPress={handleChangeCountry}
               />
               {divider}
               <SettingRow
                 icon="language-outline"
-                label="Language"
+                label={t('settings.language')}
                 value={countryConfig?.availableLanguages.find(
                   (l) => l.code === useCountryStore.getState().language
                 )?.nativeName ?? '—'}
@@ -211,24 +220,14 @@ export default function SettingsScreen() {
           )}
           <SettingRow
             icon="language-outline"
-            label="Wika"
-            value={settings.language}
-            right={
-              <TouchableOpacity
-                onPress={() => updateSettings({ language: settings.language === 'Filipino' ? 'English' : 'Filipino' })}
-                style={[styles.togglePill, { borderColor: theme.border }]}
-                accessible
-                accessibilityLabel="Palitan ang wika"
-              >
-                <AppText variant="label" color={theme.primary}>{settings.language}</AppText>
-              </TouchableOpacity>
-            }
+            label={t('settings.language')}
+            right={<LanguageToggle />}
           />
           {divider}
           <SettingRow
             icon="text-outline"
-            label="Laki ng Teksto"
-            value={settings.textSize}
+            label={t('settings.textSize')}
+            value={t(TEXT_SIZE_KEYS[settings.textSize])}
             right={
               <TouchableOpacity
                 onPress={() => {
@@ -238,16 +237,16 @@ export default function SettingsScreen() {
                 }}
                 style={[styles.togglePill, { borderColor: theme.border }]}
                 accessible
-                accessibilityLabel="Palitan ang laki ng teksto"
+                accessibilityLabel={t('settings.changeTextSizeA11y')}
               >
-                <AppText variant="label" color={theme.primary}>{settings.textSize}</AppText>
+                <AppText variant="label" color={theme.primary}>{t(TEXT_SIZE_KEYS[settings.textSize])}</AppText>
               </TouchableOpacity>
             }
           />
           {divider}
           <SettingRow
             icon="eye-outline"
-            label="Makikita sa Direktoryo"
+            label={t('settings.directoryVisible')}
             right={
               <Switch
                 value={settings.directoryVisible}
@@ -255,21 +254,21 @@ export default function SettingsScreen() {
                 trackColor={{ false: theme.border, true: theme.primary }}
                 thumbColor={theme.textInverse}
                 accessible
-                accessibilityLabel="Directory visibility"
+                accessibilityLabel={t('settings.directoryVisibilityA11y')}
               />
             }
           />
         </SectionCard>
 
         {/* About */}
-        <SectionCard title="Tungkol sa App">
-          <SettingRow icon="information-circle-outline" label="Bersyon ng App" value={APP_VERSION} />
+        <SectionCard title={t('settings.about')}>
+          <SettingRow icon="information-circle-outline" label={t('settings.version')} value={APP_VERSION} />
           {divider}
-          <SettingRow icon="business-outline" label="Parokya" value={churchData.name} />
+          <SettingRow icon="business-outline" label={t('settings.parish')} value={churchData.name} />
           {divider}
-          <SettingRow icon="globe-outline" label="Diyosesis" value={churchData.diocese} />
+          <SettingRow icon="globe-outline" label={t('settings.diocese')} value={churchData.diocese} />
           {divider}
-          <SettingRow icon="help-circle-outline" label="Tungkol sa Simbahan App" onPress={() => setAboutVisible(true)} />
+          <SettingRow icon="help-circle-outline" label={t('settings.aboutSimbahanApp')} onPress={() => setAboutVisible(true)} />
         </SectionCard>
 
         {/* Logout */}
@@ -278,11 +277,11 @@ export default function SettingsScreen() {
             onPress={handleLogout}
             style={[styles.logoutBtn, { borderColor: theme.danger + '44', backgroundColor: theme.dangerPale }]}
             accessible
-            accessibilityLabel="Mag-logout"
+            accessibilityLabel={t('auth.logout')}
             activeOpacity={0.8}
           >
             <Ionicons name="log-out-outline" size={20} color={theme.danger} />
-            <AppText variant="headingSm" color={theme.danger}>Mag-logout</AppText>
+            <AppText variant="headingSm" color={theme.danger}>{t('auth.logout')}</AppText>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -302,10 +301,10 @@ export default function SettingsScreen() {
           <View style={[styles.modalCard, { backgroundColor: theme.surface }]}>
             <AppText variant="headingMd" color={theme.primary}>✝ Simbahan App</AppText>
             <AppText variant="bodyMd" color={theme.textSecondary} style={{ textAlign: 'center' }}>
-              Ang Simbahan App ay isang libreng mobile app para sa mga miyembro ng parokya. Dinisenyo para sa mas malalim na koneksyon sa pananampalataya at komunidad.
+              {t('settings.aboutDescription')}
             </AppText>
-            <AppText variant="caption" color={theme.textMuted}>Bersyon {APP_VERSION}</AppText>
-            <AppButton label="Isara" onPress={() => setAboutVisible(false)} variant="ghost" />
+            <AppText variant="caption" color={theme.textMuted}>{t('settings.versionLabel', { version: APP_VERSION })}</AppText>
+            <AppButton label={t('common.close')} onPress={() => setAboutVisible(false)} variant="ghost" />
           </View>
         </View>
       </Modal>
@@ -314,11 +313,11 @@ export default function SettingsScreen() {
       <Modal visible={pwVisible} transparent animationType="slide" onRequestClose={() => setPwVisible(false)}>
         <View style={[styles.modalOverlay, { backgroundColor: theme.overlay }]}>
           <View style={[styles.modalCard, { backgroundColor: theme.surface }]}>
-            <AppText variant="headingMd" color={theme.primary}>Baguhin ang Password</AppText>
+            <AppText variant="headingMd" color={theme.primary}>{t('settings.changePassword')}</AppText>
             <AppText variant="bodyMd" color={theme.textSecondary} style={{ textAlign: 'center' }}>
-              Ang feature na ito ay available sa susunod na update. Makipag-ugnayan sa opisina ng parokya para sa tulong.
+              {t('settings.changePasswordMessage')}
             </AppText>
-            <AppButton label="Isara" onPress={() => setPwVisible(false)} />
+            <AppButton label={t('common.close')} onPress={() => setPwVisible(false)} />
           </View>
         </View>
       </Modal>

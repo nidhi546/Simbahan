@@ -4,23 +4,24 @@ import { Tabs, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
 import { useAuthStore } from '../../store/authStore';
+import { useI18n } from '../../i18n';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
 type TabConfig = {
   name: string;
-  title: string;
+  titleKey: string;
   icon: IoniconsName;
   activeIcon: IoniconsName;
 };
 
 const TABS: TabConfig[] = [
-  { name: 'index',         title: 'Tahanan',    icon: 'home-outline',      activeIcon: 'home'      },
-  { name: 'calendar',      title: 'Kalendaryo', icon: 'calendar-outline',  activeIcon: 'calendar'  },
-  { name: 'announcements', title: 'Balita',     icon: 'newspaper-outline', activeIcon: 'newspaper' },
-  { name: 'more',          title: 'Higit pa',   icon: 'grid-outline',      activeIcon: 'grid'      },
-  { name: 'parish',        title: 'Parish',     icon: 'business-outline',  activeIcon: 'business'  },
-  { name: 'schedule',      title: 'Schedule',   icon: 'time-outline',      activeIcon: 'time'      },
+  { name: 'index',         titleKey: 'tabs.home',        icon: 'home-outline',      activeIcon: 'home'      },
+  { name: 'calendar',      titleKey: 'tabs.calendar',    icon: 'calendar-outline',  activeIcon: 'calendar'  },
+  { name: 'announcements', titleKey: 'tabs.announcements', icon: 'newspaper-outline', activeIcon: 'newspaper' },
+  { name: 'more',          titleKey: 'tabs.more',        icon: 'grid-outline',      activeIcon: 'grid'      },
+  { name: 'parish',        titleKey: 'tabs.parish',      icon: 'business-outline',  activeIcon: 'business'  },
+  { name: 'schedule',      titleKey: 'tabs.schedule',    icon: 'time-outline',      activeIcon: 'time'      },
 ];
 
 function TabIcon({ name, focused }: { name: IoniconsName; focused: boolean }) {
@@ -36,6 +37,7 @@ const isWeb = Platform.OS === 'web';
 
 export default function TabsLayout() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { t } = useI18n();
 
   const renderIcon = useCallback(
     (tab: TabConfig) =>
@@ -64,7 +66,7 @@ export default function TabsLayout() {
           key={tab.name}
           name={tab.name}
           options={{
-            title: tab.title,
+            title: t(tab.titleKey),
             tabBarIcon: renderIcon(tab),
           }}
         />

@@ -20,21 +20,32 @@ import Avatar from '../../components/ui/Avatar';
 import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { useMemberStore } from '../../store/memberStore';
+import { useI18n } from '../../i18n';
 
 type Member = ReturnType<typeof useMemberStore.getState>['members'][number];
 type Family = ReturnType<typeof useMemberStore.getState>['families'][number];
 
 const TABS = ['Members', 'Families'] as const;
 type Tab = typeof TABS[number];
+const TAB_LABEL_KEYS: Record<Tab, string> = {
+  Members: 'community.tabMembers',
+  Families: 'community.tabFamilies',
+};
 
 const FILTERS = ['All', 'Ministry', 'Barangay'] as const;
 type Filter = typeof FILTERS[number];
+const FILTER_LABEL_KEYS: Record<Filter, string> = {
+  All: 'community.filterAll',
+  Ministry: 'community.filterMinistry',
+  Barangay: 'community.filterBarangay',
+};
 
 const isWeb = Platform.OS === 'web';
 const keyExtractorM = (item: Member) => item.id;
 const keyExtractorF = (item: Family) => item.id;
 
 export default function CommunityScreen() {
+  const { t } = useI18n();
   const members = useMemberStore((s) => s.members);
   const families = useMemberStore((s) => s.families);
   const [tab, setTab] = useState<Tab>('Members');
@@ -91,17 +102,17 @@ export default function CommunityScreen() {
           </AppText>
           {head && (
             <AppText variant="caption" color={Colors.textMuted} numberOfLines={1}>
-              Head: {head.fullName}
+              {t('community.familyHead', { name: head.fullName })}
             </AppText>
           )}
           <AppText variant="caption" color={Colors.textMuted}>
-            {item.memberIds.length} miyembro · {item.barangay}
+            {t('community.familyMeta', { count: item.memberIds.length, barangay: item.barangay })}
           </AppText>
         </View>
         <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
       </TouchableOpacity>
     );
-  }, []);
+  }, [t]);
 
   const MembersHeader = (
     <>
@@ -111,11 +122,11 @@ export default function CommunityScreen() {
         <TextInput
           value={search}
           onChangeText={setSearch}
-          placeholder="Hanapin ang miyembro..."
+          placeholder={t('community.search')}
           placeholderTextColor={Colors.textMuted}
           style={styles.searchInput}
           accessible
-          accessibilityLabel="Maghanap"
+          accessibilityLabel={t('community.searchA11y')}
         />
       </View>
       {/* Filter chips */}
@@ -126,10 +137,10 @@ export default function CommunityScreen() {
             onPress={() => setFilter(f)}
             style={[styles.chip, filter === f && styles.chipActive]}
             accessible
-            accessibilityLabel={f}
+            accessibilityLabel={t(FILTER_LABEL_KEYS[f])}
           >
             <AppText variant="label" color={filter === f ? Colors.textInverse : Colors.textMuted}>
-              {f}
+              {t(FILTER_LABEL_KEYS[f])}
             </AppText>
           </TouchableOpacity>
         ))}
@@ -142,22 +153,22 @@ export default function CommunityScreen() {
       <BackBar />
       {/* Header */}
       <View style={styles.header}>
-        <AppText variant="displaySm" color={Colors.navy}>Komunidad</AppText>
-        <AppText variant="bodySm" color={Colors.textMuted}>Parish directory</AppText>
+        <AppText variant="displaySm" color={Colors.navy}>{t('community.title')}</AppText>
+        <AppText variant="bodySm" color={Colors.textMuted}>{t('community.subtitle')}</AppText>
       </View>
 
       {/* Tabs */}
       <View style={styles.tabRow}>
-        {TABS.map((t) => (
+        {TABS.map((tabName) => (
           <TouchableOpacity
-            key={t}
-            onPress={() => setTab(t)}
-            style={[styles.tabBtn, tab === t && styles.tabBtnActive]}
+            key={tabName}
+            onPress={() => setTab(tabName)}
+            style={[styles.tabBtn, tab === tabName && styles.tabBtnActive]}
             accessible
-            accessibilityLabel={t}
+            accessibilityLabel={t(TAB_LABEL_KEYS[tabName])}
           >
-            <AppText variant="label" color={tab === t ? Colors.navy : Colors.textMuted}>{t}</AppText>
-            {tab === t && <View style={styles.tabUnderline} />}
+            <AppText variant="label" color={tab === tabName ? Colors.navy : Colors.textMuted}>{t(TAB_LABEL_KEYS[tabName])}</AppText>
+            {tab === tabName && <View style={styles.tabUnderline} />}
           </TouchableOpacity>
         ))}
       </View>

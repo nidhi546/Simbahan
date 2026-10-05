@@ -11,6 +11,7 @@ import GradientView from '../../components/ui/GradientView';
 import WebLayout from '../../components/ui/WebLayout';
 import { useChurchStore, Event } from '../../store/churchStore';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
+import { useI18n } from '../../i18n';
 
 const CATEGORIES = ['Lahat', 'Liturgical', 'Youth', 'Fiesta', 'Sacraments', 'Outreach'];
 
@@ -23,12 +24,22 @@ const CATEGORY_MAP: Record<string, string[]> = {
   'Outreach': ['Outreach'],
 };
 
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
+  'Lahat': 'events.categories.all',
+  'Liturgical': 'events.categories.liturgical',
+  'Youth': 'events.categories.youth',
+  'Fiesta': 'events.categories.fiesta',
+  'Sacraments': 'events.categories.sacraments',
+  'Outreach': 'events.categories.outreach',
+};
+
 const Separator = () => <View style={{ height: 8 }} />;
 const keyExtractor = (item: Event) => item.id;
 
 type ViewMode = 'list' | 'grid';
 
 export default function EventsScreen() {
+  const { t } = useI18n();
   const events = useChurchStore((s) => s.events);
   const [activeCategory, setActiveCategory] = useState('Lahat');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -68,10 +79,10 @@ export default function EventsScreen() {
         <View style={styles.headerRow}>
           <View>
             <AppText variant="displaySm" color={Colors.textInverse} style={styles.headerTitle}>
-              Mga Kaganapan
+              {t('events.headerTitle')}
             </AppText>
             <AppText variant="bodySm" color={Colors.goldLight}>
-              Upcoming events &amp; activities
+              {t('events.headerSubtitle')}
             </AppText>
           </View>
           <View style={styles.toggleRow}>
@@ -79,7 +90,7 @@ export default function EventsScreen() {
               onPress={() => setViewMode('list')}
               style={StyleSheet.flatten([styles.toggleBtn, viewMode === 'list' && styles.toggleActive])}
               accessible
-              accessibilityLabel="List view"
+              accessibilityLabel={t('events.listViewA11y')}
             >
               <Ionicons name="list" size={18} color={viewMode === 'list' ? Colors.navy : Colors.textInverse} />
             </TouchableOpacity>
@@ -87,7 +98,7 @@ export default function EventsScreen() {
               onPress={() => setViewMode('grid')}
               style={StyleSheet.flatten([styles.toggleBtn, viewMode === 'grid' && styles.toggleActive])}
               accessible
-              accessibilityLabel="Grid view"
+              accessibilityLabel={t('events.gridViewA11y')}
             >
               <Ionicons name="grid" size={16} color={viewMode === 'grid' ? Colors.navy : Colors.textInverse} />
             </TouchableOpacity>
@@ -108,10 +119,10 @@ export default function EventsScreen() {
               onPress={() => setActiveCategory(cat)}
               style={StyleSheet.flatten([styles.pill, isActive ? styles.pillActive : styles.pillInactive])}
               accessible
-              accessibilityLabel={cat}
+              accessibilityLabel={t(CATEGORY_LABEL_KEYS[cat])}
             >
               <AppText variant="label" color={isActive ? Colors.textInverse : Colors.textMuted}>
-                {cat}
+                {t(CATEGORY_LABEL_KEYS[cat])}
               </AppText>
             </Pressable>
           );

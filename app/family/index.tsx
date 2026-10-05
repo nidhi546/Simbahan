@@ -24,11 +24,21 @@ import { useMemberStore } from '../../store/memberStore';
 import { useChurchStore } from '../../store/churchStore';
 import { useFamilyStore } from '../../store/familyStore';
 import { useUiStore } from '../../store/uiStore';
+import { useI18n } from '../../i18n';
 
 const RELATIONSHIPS = ['Anak', 'Magulang', 'Kapatid', 'Lolo/Lola', 'Apo', 'Iba pa'];
+const RELATIONSHIP_KEYS: Record<string, string> = {
+  'Anak': 'family.relChild',
+  'Magulang': 'family.relParent',
+  'Kapatid': 'family.relSibling',
+  'Lolo/Lola': 'family.relGrandparent',
+  'Apo': 'family.relGrandchild',
+  'Iba pa': 'family.relOther',
+};
 const isWeb = Platform.OS === 'web';
 
 export default function FamilyScreen() {
+  const { t } = useI18n();
   const currentUser = useAuthStore((s) => s.currentUser);
   const members = useMemberStore((s) => s.members);
   const families = useMemberStore((s) => s.families);
@@ -62,12 +72,12 @@ export default function FamilyScreen() {
   const handleInvite = useCallback(() => {
     setInviteVisible(false);
     setInviteSearch('');
-    showToast('Naipadala ang imbitasyon!', 'success');
-  }, [showToast]);
+    showToast(t('family.inviteSent'), 'success');
+  }, [showToast, t]);
 
   const handleAddDependent = useCallback(() => {
     if (!depName.trim()) {
-      showToast('Ilagay ang pangalan', 'error');
+      showToast(t('family.nameRequired'), 'error');
       return;
     }
     addDependent({
@@ -80,42 +90,42 @@ export default function FamilyScreen() {
     setDepVisible(false);
     setDepName('');
     setDepBday('');
-    showToast('Naidagdag ang dependent!', 'success');
-  }, [depName, depRel, depBday, family, addDependent, showToast]);
+    showToast(t('family.dependentAdded'), 'success');
+  }, [depName, depRel, depBday, family, addDependent, showToast, t]);
 
   const content = (
     <ScrollView style={styles.screen} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       <BackBar />
       <GradientView colors={[Colors.sage, '#3D8A65']} style={styles.header}>
-        <AppText variant="displaySm" color={Colors.textInverse}>Aking Pamilya</AppText>
+        <AppText variant="displaySm" color={Colors.textInverse}>{t('community.family')}</AppText>
         <AppText variant="bodySm" color="rgba(255,255,255,0.8)">
-          {family?.familyName ?? 'Inyong pamilya'}
+          {family?.familyName ?? t('family.yourFamily')}
         </AppText>
       </GradientView>
 
       {/* Family header card */}
       <View style={styles.card}>
         <AppText variant="headingMd" color={Colors.navy}>
-          {family?.familyName ?? 'Pamilya'}
+          {family?.familyName ?? t('family.family')}
         </AppText>
         {head && (
           <View style={styles.infoRow}>
             <Ionicons name="ribbon-outline" size={16} color={Colors.gold} />
-            <AppText variant="bodySm" color={Colors.textMuted} style={styles.infoLabel}>Ulo ng Pamilya</AppText>
+            <AppText variant="bodySm" color={Colors.textMuted} style={styles.infoLabel}>{t('family.head')}</AppText>
             <AppText variant="bodyMd" color={Colors.textPrimary}>{head.fullName}</AppText>
           </View>
         )}
         {family?.barangay && (
           <View style={styles.infoRow}>
             <Ionicons name="location-outline" size={16} color={Colors.gold} />
-            <AppText variant="bodySm" color={Colors.textMuted} style={styles.infoLabel}>Barangay</AppText>
+            <AppText variant="bodySm" color={Colors.textMuted} style={styles.infoLabel}>{t('family.barangay')}</AppText>
             <AppText variant="bodyMd" color={Colors.textPrimary}>{family.barangay}</AppText>
           </View>
         )}
         {family?.weddingDate && (
           <View style={styles.infoRow}>
             <Ionicons name="heart-outline" size={16} color={Colors.gold} />
-            <AppText variant="bodySm" color={Colors.textMuted} style={styles.infoLabel}>Kasal</AppText>
+            <AppText variant="bodySm" color={Colors.textMuted} style={styles.infoLabel}>{t('family.wedding')}</AppText>
             <AppText variant="bodyMd" color={Colors.textPrimary}>{family.weddingDate}</AppText>
           </View>
         )}
@@ -124,15 +134,15 @@ export default function FamilyScreen() {
       {/* Members */}
       <View style={styles.card}>
         <View style={styles.sectionHeader}>
-          <AppText variant="headingSm" color={Colors.navy}>Mga Miyembro</AppText>
+          <AppText variant="headingSm" color={Colors.navy}>{t('community.members')}</AppText>
           <TouchableOpacity
             onPress={() => setInviteVisible(true)}
             style={styles.addBtn}
             accessible
-            accessibilityLabel="Mag-imbita"
+            accessibilityLabel={t('family.inviteA11y')}
           >
             <Ionicons name="person-add-outline" size={16} color={Colors.navy} />
-            <AppText variant="label" color={Colors.navy}>Imbitahan</AppText>
+            <AppText variant="label" color={Colors.navy}>{t('family.invite')}</AppText>
           </TouchableOpacity>
         </View>
         {familyMembers.map((m) => (
@@ -152,19 +162,19 @@ export default function FamilyScreen() {
       {/* Dependents */}
       <View style={styles.card}>
         <View style={styles.sectionHeader}>
-          <AppText variant="headingSm" color={Colors.navy}>Mga Dependent</AppText>
+          <AppText variant="headingSm" color={Colors.navy}>{t('family.dependents')}</AppText>
           <TouchableOpacity
             onPress={() => setDepVisible(true)}
             style={styles.addBtn}
             accessible
-            accessibilityLabel="Magdagdag ng dependent"
+            accessibilityLabel={t('family.addDependentA11y')}
           >
             <Ionicons name="add-circle-outline" size={16} color={Colors.navy} />
-            <AppText variant="label" color={Colors.navy}>Idagdag</AppText>
+            <AppText variant="label" color={Colors.navy}>{t('family.add')}</AppText>
           </TouchableOpacity>
         </View>
         {myDependents.length === 0 ? (
-          <AppText variant="bodySm" color={Colors.textMuted}>Walang dependent pa.</AppText>
+          <AppText variant="bodySm" color={Colors.textMuted}>{t('family.noDependents')}</AppText>
         ) : (
           myDependents.map((d) => (
             <View key={d.id} style={styles.depRow}>
@@ -173,7 +183,7 @@ export default function FamilyScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <AppText variant="bodyMd" color={Colors.textPrimary}>{d.name}</AppText>
-                <AppText variant="caption" color={Colors.textMuted}>{d.relationship}</AppText>
+                <AppText variant="caption" color={Colors.textMuted}>{RELATIONSHIP_KEYS[d.relationship] ? t(RELATIONSHIP_KEYS[d.relationship]) : d.relationship}</AppText>
               </View>
               {!!d.birthday && (
                 <AppText variant="caption" color={Colors.textMuted}>{d.birthday}</AppText>
@@ -185,12 +195,12 @@ export default function FamilyScreen() {
 
       {/* Donations summary */}
       <View style={styles.card}>
-        <AppText variant="headingSm" color={Colors.navy}>Donasyon ng Pamilya</AppText>
+        <AppText variant="headingSm" color={Colors.navy}>{t('family.familyDonations')}</AppText>
         <AppText variant="displaySm" color={Colors.gold}>
           ₱{totalDonated.toLocaleString('en-PH')}
         </AppText>
         <AppText variant="caption" color={Colors.textMuted}>
-          {familyDonations.length} kabuuang donasyon
+          {t('family.totalDonations', { count: familyDonations.length })}
         </AppText>
       </View>
     </ScrollView>
@@ -209,21 +219,21 @@ export default function FamilyScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             <AppText variant="headingSm" color={Colors.navy} style={styles.modalTitle}>
-              Mag-imbita ng Miyembro
+              {t('family.inviteTitle')}
             </AppText>
             <View style={styles.searchWrap}>
               <Ionicons name="search-outline" size={16} color={Colors.textMuted} />
               <TextInput
                 value={inviteSearch}
                 onChangeText={setInviteSearch}
-                placeholder="Pangalan o email..."
+                placeholder={t('family.invitePlaceholder')}
                 placeholderTextColor={Colors.textMuted}
                 style={styles.searchInput}
               />
             </View>
             <View style={styles.modalBtns}>
-              <AppButton label="Ipadala ang Imbitasyon" onPress={handleInvite} />
-              <AppButton label="Kanselahin" onPress={() => setInviteVisible(false)} variant="ghost" />
+              <AppButton label={t('family.sendInvite')} onPress={handleInvite} />
+              <AppButton label={t('common.cancel')} onPress={() => setInviteVisible(false)} variant="ghost" />
             </View>
           </View>
         </View>
@@ -234,19 +244,19 @@ export default function FamilyScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             <AppText variant="headingSm" color={Colors.navy} style={styles.modalTitle}>
-              Magdagdag ng Dependent
+              {t('family.addDependentTitle')}
             </AppText>
 
-            <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>Pangalan</AppText>
+            <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>{t('family.name')}</AppText>
             <TextInput
               value={depName}
               onChangeText={setDepName}
-              placeholder="Buong pangalan"
+              placeholder={t('family.fullNamePlaceholder')}
               placeholderTextColor={Colors.textMuted}
               style={styles.input}
             />
 
-            <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>Relasyon</AppText>
+            <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>{t('family.relationship')}</AppText>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.relRow}>
               {RELATIONSHIPS.map((r) => (
                 <TouchableOpacity
@@ -254,12 +264,12 @@ export default function FamilyScreen() {
                   onPress={() => setDepRel(r)}
                   style={[styles.chip, depRel === r && styles.chipActive]}
                 >
-                  <AppText variant="label" color={depRel === r ? Colors.textInverse : Colors.textMuted}>{r}</AppText>
+                  <AppText variant="label" color={depRel === r ? Colors.textInverse : Colors.textMuted}>{t(RELATIONSHIP_KEYS[r])}</AppText>
                 </TouchableOpacity>
               ))}
             </ScrollView>
 
-            <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>Kaarawan (YYYY-MM-DD)</AppText>
+            <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>{t('family.birthdayLabel')}</AppText>
             <TextInput
               value={depBday}
               onChangeText={setDepBday}
@@ -269,8 +279,8 @@ export default function FamilyScreen() {
             />
 
             <View style={styles.modalBtns}>
-              <AppButton label="I-save" onPress={handleAddDependent} />
-              <AppButton label="Kanselahin" onPress={() => setDepVisible(false)} variant="ghost" />
+              <AppButton label={t('common.save')} onPress={handleAddDependent} />
+              <AppButton label={t('common.cancel')} onPress={() => setDepVisible(false)} variant="ghost" />
             </View>
           </View>
         </View>

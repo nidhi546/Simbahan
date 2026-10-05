@@ -5,6 +5,7 @@ import AppText from '../ui/AppText';
 import AppButton from '../ui/AppButton';
 import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
+import { useI18n } from '../../i18n';
 
 interface FundCardProps {
   id: string;
@@ -16,11 +17,13 @@ interface FundCardProps {
   endDate: string;
 }
 
-const fmt = (n: number) =>
-  '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 0 });
+const fmt = (n: number, locale: string) =>
+  '₱' + n.toLocaleString(locale, { minimumFractionDigits: 0 });
 
 const FundCard = ({ id, title, description, goal, collected, startDate, endDate }: FundCardProps) => {
   const pct = Math.min(100, Math.round((collected / goal) * 100));
+  const { t, language } = useI18n();
+  const locale = language === 'en' ? 'en-PH' : 'fil-PH';
 
   const handlePress = useCallback(() => {
     router.push(`/donations/${id}` as never);
@@ -40,9 +43,9 @@ const FundCard = ({ id, title, description, goal, collected, startDate, endDate 
           <View style={[styles.progressFill, { width: `${pct}%` as any }]} />
         </View>
         <View style={styles.progressLabels}>
-          <AppText variant="caption" color={Colors.gold}>{pct}% naabot</AppText>
+          <AppText variant="caption" color={Colors.gold}>{t('donations.percentReached', { pct })}</AppText>
           <AppText variant="caption" color={Colors.textMuted}>
-            {fmt(collected)} / {fmt(goal)}
+            {fmt(collected, locale)} / {fmt(goal, locale)}
           </AppText>
         </View>
 
@@ -51,7 +54,7 @@ const FundCard = ({ id, title, description, goal, collected, startDate, endDate 
           <AppText variant="caption" color={Colors.textMuted}>
             {startDate} – {endDate}
           </AppText>
-          <AppButton label="Mag-donate" onPress={handlePress} variant="secondary" />
+          <AppButton label={t('donations.donate')} onPress={handlePress} variant="secondary" />
         </View>
       </View>
     </View>

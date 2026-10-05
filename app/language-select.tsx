@@ -27,8 +27,10 @@ import {
   COUNTRIES,
   LanguageCode,
 } from '../store/countryStore';
+import { useI18n } from '../i18n';
 
 export default function LanguageSelectScreen() {
+  const { t } = useI18n();
   const country    = useCountryStore((s) => s.country);
   const language   = useCountryStore((s) => s.language);
   const setLanguage = useCountryStore((s) => s.setLanguage);
@@ -60,11 +62,11 @@ export default function LanguageSelectScreen() {
           style={styles.backBtn}
           accessible
           accessibilityRole="button"
-          accessibilityLabel="Go back"
+          accessibilityLabel={t('languageSelect.goBackA11y')}
           activeOpacity={0.7}
         >
           <Ionicons name="chevron-back" size={22} color={Colors.navy} />
-          <AppText variant="bodySm" color={Colors.navy}>Back</AppText>
+          <AppText variant="bodySm" color={Colors.navy}>{t('common.back')}</AppText>
         </TouchableOpacity>
       )}
 
@@ -78,17 +80,16 @@ export default function LanguageSelectScreen() {
           <View style={styles.countryBadge}>
             <AppText style={styles.countryFlag}>{countryConfig.flag}</AppText>
             <AppText variant="bodySm" color={Colors.textMuted}>
-              {countryConfig.name}
+              {t(`countrySelect.countries.${country}`)}
             </AppText>
           </View>
         )}
 
         <AppText variant="displaySm" color={Colors.navy} style={styles.title}>
-          Choose Your Language
+          {t('languageSelect.title')}
         </AppText>
         <AppText variant="bodyMd" color={Colors.textSecondary} style={styles.subtitle}>
-          Select the language you prefer for the app.{'\n'}
-          You can change this later in Settings.
+          {t('languageSelect.subtitleMultiline')}
         </AppText>
       </View>
 
@@ -108,7 +109,7 @@ export default function LanguageSelectScreen() {
               accessible
               accessibilityRole="radio"
               accessibilityState={{ selected: isSelected }}
-              accessibilityLabel={`Select ${lang.englishName}`}
+              accessibilityLabel={t('languageSelect.selectLanguageA11y', { language: t(`languageSelect.languages.${lang.code}`) })}
               style={[styles.card, isSelected && styles.cardSelected]}
             >
               <View style={styles.cardLeft}>
@@ -134,7 +135,7 @@ export default function LanguageSelectScreen() {
                   variant="bodyMd"
                   color={isSelected ? Colors.navy : Colors.textSecondary}
                 >
-                  {lang.englishName}
+                  {t(`languageSelect.languages.${lang.code}`)}
                 </AppText>
               </View>
 
@@ -155,18 +156,18 @@ export default function LanguageSelectScreen() {
           activeOpacity={0.85}
           accessible
           accessibilityRole="button"
-          accessibilityLabel="Continue"
+          accessibilityLabel={t('languageSelect.continue')}
           accessibilityState={{ disabled: saving }}
           style={[styles.btn, saving && styles.btnDisabled]}
         >
           {saving ? (
             <AppText variant="label" color={Colors.textInverse}>
-              Please wait…
+              {t('languageSelect.pleaseWait')}
             </AppText>
           ) : (
             <>
               <AppText variant="label" color={Colors.textInverse} style={styles.btnText}>
-                Continue
+                {t('languageSelect.continue')}
               </AppText>
               <Ionicons name="arrow-forward" size={18} color={Colors.textInverse} />
             </>

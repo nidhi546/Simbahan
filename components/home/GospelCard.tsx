@@ -6,9 +6,11 @@ import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { AppText } from '../ui';
 import { useChurchStore } from '../../store/churchStore';
+import { useI18n } from '../../i18n';
 
 const GospelCard = () => {
   const reading = useChurchStore((s) => s.todayReadings);
+  const { t } = useI18n();
 
   const handlePress = useCallback(() => router.push('/(tabs)/schedule' as never), []);
 
@@ -18,7 +20,7 @@ const GospelCard = () => {
     <TouchableOpacity
       onPress={handlePress}
       accessible
-      accessibilityLabel="Read today's gospel"
+      accessibilityLabel={t('home.readGospelA11y')}
       activeOpacity={0.85}
       style={styles.card}
     >
@@ -27,7 +29,7 @@ const GospelCard = () => {
         <View style={styles.titleRow}>
           <Ionicons name="book-outline" size={16} color={Colors.gold} />
           <AppText variant="label" color={Colors.gold} style={styles.sectionLabel}>
-            MABUTING BALITA NGAYON
+            {t('home.gospelTodayLabel')}
           </AppText>
         </View>
         <AppText variant="headingSm" color={Colors.navy} style={styles.title} numberOfLines={2}>
@@ -42,7 +44,7 @@ const GospelCard = () => {
           {reading.gospel.text}
         </AppText>
         <View style={styles.readRow}>
-          <AppText variant="label" color={Colors.gold}>Basahin...</AppText>
+          <AppText variant="label" color={Colors.gold}>{t('home.readMore')}</AppText>
           <Ionicons name="arrow-forward" size={13} color={Colors.gold} />
         </View>
       </View>

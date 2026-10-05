@@ -19,6 +19,7 @@ import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { useChurchStore } from '../../store/churchStore';
 import fundsData from '../../data/donationFunds.json';
+import { useI18n } from '../../i18n';
 
 type Fund = typeof fundsData[number];
 
@@ -27,6 +28,7 @@ const keyExtractor = (item: Fund) => item.id;
 
 export default function DonationsScreen() {
   const donations = useChurchStore((s) => s.donations);
+  const { t, language } = useI18n();
   const total = donations.reduce((sum, d) => sum + d.amount, 0);
 
   const renderItem = useCallback(({ item }: ListRenderItemInfo<Fund>) => (
@@ -45,9 +47,9 @@ export default function DonationsScreen() {
     <>
       <BackBar />
       <GradientView colors={[Colors.crimson, Colors.crimsonLight]} style={[styles.header, { marginHorizontal: -Spacing.md }]}>
-        <AppText variant="displaySm" color={Colors.textInverse}>Mga Donasyon</AppText>
+        <AppText variant="displaySm" color={Colors.textInverse}>{t('donations.title')}</AppText>
         <AppText variant="bodySm" color="rgba(255,255,255,0.75)">
-          Suportahan ang inyong parokya
+          {t('donations.subtitle')}
         </AppText>
       </GradientView>
 
@@ -55,25 +57,25 @@ export default function DonationsScreen() {
       <View style={styles.summaryCard}>
         <View style={styles.summaryLeft}>
           <AppText variant="displayMd" color={Colors.navy} style={styles.totalAmt}>
-            ₱{total.toLocaleString('en-PH')}
+            ₱{total.toLocaleString(language === 'en' ? 'en-PH' : 'fil-PH')}
           </AppText>
           <AppText variant="bodySm" color={Colors.textMuted}>
-            {donations.length} donasyon
+            {t('donations.count', { count: donations.length })}
           </AppText>
         </View>
         <TouchableOpacity
           onPress={() => router.push('/donations/history' as never)}
           style={styles.historyBtn}
           accessible
-          accessibilityLabel="Tingnan ang kasaysayan"
+          accessibilityLabel={t('donations.viewHistoryA11y')}
         >
-          <AppText variant="label" color={Colors.navy}>Kasaysayan</AppText>
+          <AppText variant="label" color={Colors.navy}>{t('donations.historyShort')}</AppText>
           <Ionicons name="chevron-forward" size={14} color={Colors.navy} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.sectionHeader}>
-        <AppText variant="headingSm" color={Colors.navy}>Mga Aktibong Pondo</AppText>
+        <AppText variant="headingSm" color={Colors.navy}>{t('donations.activeFunds')}</AppText>
       </View>
     </>
   );

@@ -11,6 +11,7 @@ import WebLayout from '../../components/ui/WebLayout';
 import { useChurchStore } from '../../store/churchStore';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import announcementsData from '../../data/announcements.json';
+import { useI18n } from '../../i18n';
 
 type Announcement = typeof announcementsData[number];
 
@@ -26,6 +27,16 @@ const CATEGORY_MAP: Record<string, string[]> = {
   'Special': ['Event'],
 };
 
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
+  'Lahat': 'announcements.categories.all',
+  'General': 'announcements.categories.general',
+  'Youth': 'announcements.categories.youth',
+  'Sacraments': 'announcements.categories.sacraments',
+  'Couples for Christ': 'announcements.categories.couplesForChrist',
+  'Lenten': 'announcements.categories.lenten',
+  'Special': 'announcements.categories.special',
+};
+
 const Separator = () => <View style={{ height: 8 }} />;
 const keyExtractor = (item: Announcement) => item.id;
 
@@ -34,6 +45,7 @@ export default function AnnouncementsScreen() {
   const markRead = useChurchStore((s) => s.markAnnouncementAsRead);
   const [activeCategory, setActiveCategory] = useState('Lahat');
   const { isWeb } = useBreakpoint();
+  const { t } = useI18n();
 
   const filtered = useMemo(() => {
     if (activeCategory === 'Lahat') return announcements;
@@ -68,10 +80,10 @@ export default function AnnouncementsScreen() {
         style={styles.headerGradient}
       >
         <AppText variant="displaySm" color={Colors.textInverse} style={styles.headerTitle}>
-          Mga Anunsyo
+          {t('announcements.title')}
         </AppText>
         <AppText variant="bodySm" color={Colors.goldLight}>
-          Parish announcements &amp; notices
+          {t('announcements.subtitle')}
         </AppText>
       </GradientView>
 
@@ -88,13 +100,13 @@ export default function AnnouncementsScreen() {
               onPress={() => setActiveCategory(cat)}
               style={StyleSheet.flatten([styles.pill, isActive ? styles.pillActive : styles.pillInactive])}
               accessible
-              accessibilityLabel={cat}
+              accessibilityLabel={t(CATEGORY_LABEL_KEYS[cat])}
             >
               <AppText
                 variant="label"
                 color={isActive ? Colors.textInverse : Colors.textMuted}
               >
-                {cat}
+                {t(CATEGORY_LABEL_KEYS[cat])}
               </AppText>
             </Pressable>
           );

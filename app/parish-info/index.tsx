@@ -11,6 +11,7 @@ import { Spacing, Radius } from '../../constants/Layout';
 import { useMemberStore } from '../../store/memberStore';
 import churchData from '../../data/church.json';
 import BackBar from '../../components/ui/BackBar';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 
@@ -35,6 +36,7 @@ function ContactRow({ icon, label, value, onPress }: {
 export default function ParishInfoScreen() {
   const members = useMemberStore((s) => s.members);
   const families = useMemberStore((s) => s.families);
+  const { t } = useI18n();
 
   const daysToFeast = useMemo(() => {
     const now = new Date();
@@ -53,8 +55,7 @@ export default function ParishInfoScreen() {
      <BackBar />
     <ScrollView style={styles.screen} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       <GradientView colors={[Colors.gold, Colors.goldLight]} style={styles.header}>
-        <AppText variant="displaySm" color={Colors.navyDark}>Impormasyon ng Parokya</AppText>
-        <AppText variant="bodySm" color={Colors.navyDark} style={{ opacity: 0.7 }}>Parish Information</AppText>
+        <AppText variant="displaySm" color={Colors.navyDark}>{t('parishInfo.title')}</AppText>
       </GradientView>
 
       {/* Hero image */}
@@ -78,29 +79,29 @@ export default function ParishInfoScreen() {
       {/* Quick info */}
       <View style={styles.quickRow}>
         {[
-          { label: 'Patron', value: churchData.patron },
-          { label: 'Itinatag', value: churchData.founded },
-          { label: 'Pastor', value: 'Fr. Santos' },
+          { labelKey: 'parishInfo.patron', value: churchData.patron },
+          { labelKey: 'parishInfo.founded', value: churchData.founded },
+          { labelKey: 'parishInfo.pastor', value: 'Fr. Santos' },
         ].map((item) => (
-          <View key={item.label} style={styles.quickItem}>
+          <View key={item.labelKey} style={styles.quickItem}>
             <AppText variant="headingSm" color={Colors.navy}>{item.value}</AppText>
-            <AppText variant="caption" color={Colors.textMuted}>{item.label}</AppText>
+            <AppText variant="caption" color={Colors.textMuted}>{t(item.labelKey)}</AppText>
           </View>
         ))}
       </View>
 
       {/* Contact */}
       <View style={styles.card}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>Pakikipag-ugnayan</AppText>
-        <ContactRow icon="location-outline" label="Address"  value={churchData.address} />
+        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>{t('parishInfo.contact')}</AppText>
+        <ContactRow icon="location-outline" label={t('parishInfo.address')} value={churchData.address} />
         <View style={styles.divider} />
-        <ContactRow icon="call-outline"     label="Telepono" value={churchData.phone}
+        <ContactRow icon="call-outline"     label={t('parishInfo.phone')} value={churchData.phone}
           onPress={() => Linking.openURL(`tel:${churchData.phone}`)} />
         <View style={styles.divider} />
-        <ContactRow icon="mail-outline"     label="Email"    value={churchData.email}
+        <ContactRow icon="mail-outline"     label={t('parishInfo.email')} value={churchData.email}
           onPress={() => Linking.openURL(`mailto:${churchData.email}`)} />
         <View style={styles.divider} />
-        <ContactRow icon="globe-outline"    label="Website"  value={churchData.website}
+        <ContactRow icon="globe-outline"    label={t('parishInfo.website')} value={churchData.website}
           onPress={() => Linking.openURL(churchData.website)} />
       </View>
 
@@ -108,27 +109,27 @@ export default function ParishInfoScreen() {
       <View style={styles.feastCard}>
         <Ionicons name="star" size={24} color={Colors.gold} />
         <View style={{ flex: 1 }}>
-          <AppText variant="headingSm" color={Colors.navy}>Kapistahan ni {churchData.patron}</AppText>
+          <AppText variant="headingSm" color={Colors.navy}>{t('parishInfo.feastOf', { patron: churchData.patron })}</AppText>
           <AppText variant="caption" color={Colors.textMuted}>{churchData.feastDay}</AppText>
         </View>
         <View style={styles.countdownBadge}>
           <AppText variant="displaySm" color={Colors.navy}>{daysToFeast}</AppText>
-          <AppText variant="caption" color={Colors.textMuted}>araw pa</AppText>
+          <AppText variant="caption" color={Colors.textMuted}>{t('parishInfo.daysLeft')}</AppText>
         </View>
       </View>
 
       {/* Stats */}
       <View style={styles.statsRow}>
         {[
-          { value: members.length.toString(),  label: 'Miyembro'   },
-          { value: families.length.toString(), label: 'Pamilya'    },
-          { value: churchData.ministries.length.toString(), label: 'Ministeryo' },
+          { value: members.length.toString(),  labelKey: 'parishInfo.members'    },
+          { value: families.length.toString(), labelKey: 'parishInfo.families'   },
+          { value: churchData.ministries.length.toString(), labelKey: 'parishInfo.ministries' },
         ].map((s, i) => (
-          <React.Fragment key={s.label}>
+          <React.Fragment key={s.labelKey}>
             {i > 0 && <View style={styles.statDivider} />}
             <View style={styles.statItem}>
               <AppText variant="displaySm" color={Colors.navy}>{s.value}</AppText>
-              <AppText variant="caption" color={Colors.textMuted}>{s.label}</AppText>
+              <AppText variant="caption" color={Colors.textMuted}>{t(s.labelKey)}</AppText>
             </View>
           </React.Fragment>
         ))}
@@ -136,7 +137,7 @@ export default function ParishInfoScreen() {
 
       {/* Office hours */}
       <View style={styles.card}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>Oras ng Opisina</AppText>
+        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>{t('parishInfo.officeHours')}</AppText>
         <View style={styles.contactRow}>
           <Ionicons name="time-outline" size={16} color={Colors.gold} />
           <AppText variant="bodyMd" color={Colors.textPrimary} style={{ flex: 1 }}>

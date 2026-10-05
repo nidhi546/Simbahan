@@ -18,9 +18,22 @@ import { Typography } from '../../constants/Typography';
 import { Spacing, Radius } from '../../constants/Layout';
 import { AppText, Card, ScreenHeader } from '../../components/ui';
 import { a11y } from '../../utils/a11y';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 const CIVIL_STATUS = ['Single', 'Married', 'Widowed', 'Separated'];
+const CIVIL_STATUS_KEYS: Record<string, string> = {
+  Single: 'register.civilStatusSingle',
+  Married: 'register.civilStatusMarried',
+  Widowed: 'register.civilStatusWidowed',
+  Separated: 'register.civilStatusSeparated',
+};
+const FEATURE_KEYS = [
+  'register.feature1',
+  'register.feature2',
+  'register.feature3',
+  'register.feature4',
+];
 
 // ── Shared field component ───────────────────────────────────────────────────
 function FormInput({
@@ -87,6 +100,7 @@ function WebInput({
 }
 
 export default function RegisterScreen() {
+  const { t } = useI18n();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [mobile, setMobile] = useState('');
@@ -112,25 +126,25 @@ export default function RegisterScreen() {
       {/* Name row */}
       <View style={webStyles.row}>
         <View style={{ flex: 1 }}>
-          <AppText variant="label" color={Colors.textSecondary} style={webStyles.label}>First Name</AppText>
+          <AppText variant="label" color={Colors.textSecondary} style={webStyles.label}>{t('register.firstName')}</AppText>
           <WebInput icon="person-outline" placeholder="Juan" value={firstName} onChangeText={setFirstName} />
         </View>
         <View style={{ flex: 1 }}>
-          <AppText variant="label" color={Colors.textSecondary} style={webStyles.label}>Last Name</AppText>
+          <AppText variant="label" color={Colors.textSecondary} style={webStyles.label}>{t('register.lastName')}</AppText>
           <WebInput icon="person-outline" placeholder="dela Cruz" value={lastName} onChangeText={setLastName} />
         </View>
       </View>
 
-      <AppText variant="label" color={Colors.textSecondary} style={webStyles.label}>Email</AppText>
+      <AppText variant="label" color={Colors.textSecondary} style={webStyles.label}>{t('register.email')}</AppText>
       <WebInput icon="mail-outline" placeholder="you@email.com" value={email} onChangeText={setEmail} keyboardType="email-address" />
 
-      <AppText variant="label" color={Colors.textSecondary} style={webStyles.label}>Mobile</AppText>
+      <AppText variant="label" color={Colors.textSecondary} style={webStyles.label}>{t('register.mobile')}</AppText>
       <WebInput icon="call-outline" placeholder="+63 9XX XXX XXXX" value={mobile} onChangeText={setMobile} keyboardType="phone-pad" />
 
-      <AppText variant="label" color={Colors.textSecondary} style={webStyles.label}>Password</AppText>
+      <AppText variant="label" color={Colors.textSecondary} style={webStyles.label}>{t('auth.password')}</AppText>
       <WebInput
         icon="lock-closed-outline"
-        placeholder="Min. 8 characters"
+        placeholder={t('register.passwordPlaceholder')}
         value={password}
         onChangeText={setPassword}
         secureTextEntry={!showPw}
@@ -141,10 +155,10 @@ export default function RegisterScreen() {
         }
       />
 
-      <AppText variant="label" color={Colors.textSecondary} style={webStyles.label}>Confirm Password</AppText>
+      <AppText variant="label" color={Colors.textSecondary} style={webStyles.label}>{t('register.confirmPassword')}</AppText>
       <WebInput
         icon="lock-closed-outline"
-        placeholder="Re-enter password"
+        placeholder={t('register.confirmPasswordPlaceholder')}
         value={confirmPassword}
         onChangeText={setConfirmPassword}
         secureTextEntry={!showCpw}
@@ -156,25 +170,25 @@ export default function RegisterScreen() {
       />
 
       <AppText variant="caption" color={Colors.textMuted} style={webStyles.terms}>
-        By registering, you agree to our Terms of Service and Privacy Policy.
+        {t('register.terms')}
       </AppText>
 
       <TouchableOpacity
         onPress={handleJoinNow}
         style={webStyles.submitBtn}
         {...a11y}
-        accessibilityLabel="Create account"
+        accessibilityLabel={t('auth.createAccountA11y')}
         activeOpacity={0.85}
       >
         <AppText variant="label" color={Colors.textInverse} style={{ fontSize: 15 }}>
-          Create Account
+          {t('auth.register')}
         </AppText>
       </TouchableOpacity>
 
       <View style={webStyles.loginRow}>
-        <AppText variant="bodySm" color={Colors.textMuted}>Already have an account? </AppText>
-        <TouchableOpacity onPress={() => router.back()} {...a11y} accessibilityLabel="Sign in">
-          <AppText variant="bodySm" color={Colors.navy}>Sign in</AppText>
+        <AppText variant="bodySm" color={Colors.textMuted}>{t('auth.hasAccount')}{' '}</AppText>
+        <TouchableOpacity onPress={() => router.back()} {...a11y} accessibilityLabel={t('auth.signInLower')}>
+          <AppText variant="bodySm" color={Colors.navy}>{t('auth.signInLower')}</AppText>
         </TouchableOpacity>
       </View>
     </>
@@ -196,19 +210,14 @@ export default function RegisterScreen() {
                   Simbahan
                 </AppText>
                 <AppText variant="bodyLg" color={Colors.goldLight} style={{ opacity: 0.85, marginBottom: Spacing.lg }}>
-                  Join your parish community
+                  {t('register.tagline')}
                 </AppText>
                 <View style={webStyles.featureList}>
-                  {[
-                    'Connect with your parish family',
-                    'Track Simbang Gabi attendance',
-                    'Submit sacrament requests',
-                    'Manage family & dependents',
-                  ].map((f) => (
+                  {FEATURE_KEYS.map((f) => (
                     <View key={f} style={webStyles.featureRow}>
                       <Ionicons name="checkmark-circle" size={16} color={Colors.gold} />
                       <AppText variant="bodySm" color={Colors.textInverse} style={{ marginLeft: 8, opacity: 0.9 }}>
-                        {f}
+                        {t(f)}
                       </AppText>
                     </View>
                   ))}
@@ -217,11 +226,11 @@ export default function RegisterScreen() {
               <TouchableOpacity
                 onPress={() => router.replace('/(public)')}
                 style={webStyles.backLink}
-                accessibilityLabel="Back to homepage"
+                accessibilityLabel={t('auth.backToHomepageA11y')}
               >
                 <Ionicons name="arrow-back" size={14} color={Colors.goldLight} />
                 <AppText variant="caption" color={Colors.goldLight} style={{ marginLeft: 4 }}>
-                  Back to Homepage
+                  {t('auth.backToHomepage')}
                 </AppText>
               </TouchableOpacity>
             </GradientView>
@@ -235,10 +244,10 @@ export default function RegisterScreen() {
               >
                 <View style={webStyles.card}>
                   <AppText variant="displaySm" color={Colors.navy} style={{ marginBottom: 4 }}>
-                    Create Account
+                    {t('auth.register')}
                   </AppText>
                   <AppText variant="bodySm" color={Colors.textMuted} style={{ marginBottom: Spacing.lg }}>
-                    Register to access your parish app
+                    {t('register.subtitle')}
                   </AppText>
                   {WebFormContent}
                 </View>
@@ -254,11 +263,11 @@ export default function RegisterScreen() {
           >
             <GradientView colors={[Colors.navyDark, Colors.navy]} style={webStyles.tabletHeader}>
               <AppText variant="displaySm" color={Colors.textInverse}>✝ Simbahan</AppText>
-              <AppText variant="bodySm" color={Colors.goldLight}>Join your parish community</AppText>
+              <AppText variant="bodySm" color={Colors.goldLight}>{t('register.tagline')}</AppText>
             </GradientView>
             <View style={webStyles.tabletCard}>
               <AppText variant="headingMd" color={Colors.navy} style={{ marginBottom: Spacing.md }}>
-                Create Account
+                {t('auth.register')}
               </AppText>
               {WebFormContent}
             </View>
@@ -276,8 +285,8 @@ export default function RegisterScreen() {
     >
       <SafeAreaView style={styles.flex} edges={['top']}>
         <ScreenHeader
-          title="Create Account"
-          subtitle="Join your parish community"
+          title={t('auth.register')}
+          subtitle={t('register.tagline')}
           onBack={() => router.back()}
         />
 
@@ -292,25 +301,25 @@ export default function RegisterScreen() {
               <Ionicons name="camera-outline" size={28} color={Colors.textMuted} />
             </View>
             <AppText variant="caption" color={Colors.textMuted} style={styles.avatarLabel}>
-              Add photo
+              {t('register.addPhoto')}
             </AppText>
           </View>
 
           <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>
-            Personal Information
+            {t('register.personalInformation')}
           </AppText>
           <Card style={styles.card}>
-            <FormInput label="First Name" value={firstName} onChangeText={setFirstName} />
-            <FormInput label="Last Name" value={lastName} onChangeText={setLastName} />
+            <FormInput label={t('register.firstName')} value={firstName} onChangeText={setFirstName} />
+            <FormInput label={t('register.lastName')} value={lastName} onChangeText={setLastName} />
             <View style={styles.fieldWrap}>
-              <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>Birthday</AppText>
-              <TouchableOpacity style={styles.inputRow} {...a11y} accessibilityLabel="Select birthday" activeOpacity={0.7}>
-                <AppText variant="bodyMd" color={Colors.textMuted}>Select date</AppText>
+              <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>{t('register.birthday')}</AppText>
+              <TouchableOpacity style={styles.inputRow} {...a11y} accessibilityLabel={t('register.selectBirthdayA11y')} activeOpacity={0.7}>
+                <AppText variant="bodyMd" color={Colors.textMuted}>{t('register.selectDate')}</AppText>
                 <Ionicons name="calendar-outline" size={16} color={Colors.textMuted} />
               </TouchableOpacity>
             </View>
             <View style={styles.fieldWrap}>
-              <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>Civil Status</AppText>
+              <AppText variant="label" color={Colors.textSecondary} style={styles.fieldLabel}>{t('register.civilStatus')}</AppText>
               <View style={styles.segmentRow}>
                 {CIVIL_STATUS.map((s) => (
                   <TouchableOpacity
@@ -318,11 +327,11 @@ export default function RegisterScreen() {
                     onPress={() => setCivilStatus(s)}
                     style={StyleSheet.flatten([styles.segment, civilStatus === s && styles.segmentActive])}
                     {...a11y}
-                    accessibilityLabel={s}
+                    accessibilityLabel={t(CIVIL_STATUS_KEYS[s])}
                     activeOpacity={0.8}
                   >
                     <AppText variant="caption" color={civilStatus === s ? Colors.textInverse : Colors.textSecondary}>
-                      {s}
+                      {t(CIVIL_STATUS_KEYS[s])}
                     </AppText>
                   </TouchableOpacity>
                 ))}
@@ -330,28 +339,28 @@ export default function RegisterScreen() {
             </View>
           </Card>
 
-          <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>Contact Details</AppText>
+          <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>{t('register.contactDetails')}</AppText>
           <Card style={styles.card}>
-            <FormInput label="Mobile" value={mobile} onChangeText={setMobile} prefix="+63" keyboardType="phone-pad" placeholder="9XX XXX XXXX" />
-            <FormInput label="Email" value={email} onChangeText={setEmail} keyboardType="email-address" placeholder="you@email.com" />
-            <FormInput label="Password" value={password} onChangeText={setPassword} secureTextEntry placeholder="Min. 8 characters" />
-            <FormInput label="Confirm Password" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry placeholder="Re-enter password" />
+            <FormInput label={t('register.mobile')} value={mobile} onChangeText={setMobile} prefix="+63" keyboardType="phone-pad" placeholder="9XX XXX XXXX" />
+            <FormInput label={t('register.email')} value={email} onChangeText={setEmail} keyboardType="email-address" placeholder="you@email.com" />
+            <FormInput label={t('auth.password')} value={password} onChangeText={setPassword} secureTextEntry placeholder={t('register.passwordPlaceholder')} />
+            <FormInput label={t('register.confirmPassword')} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry placeholder={t('register.confirmPasswordPlaceholder')} />
           </Card>
 
-          <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>Address</AppText>
+          <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>{t('register.address')}</AppText>
           <Card style={styles.card}>
-            <FormInput label="Barangay" value={barangay} onChangeText={setBarangay} />
-            <FormInput label="Municipality / City" value={municipality} onChangeText={setMunicipality} />
+            <FormInput label={t('register.barangay')} value={barangay} onChangeText={setBarangay} />
+            <FormInput label={t('register.municipality')} value={municipality} onChangeText={setMunicipality} />
           </Card>
 
-          <TouchableOpacity onPress={handleJoinNow} style={styles.joinBtn} {...a11y} accessibilityLabel="Join Now" activeOpacity={0.8}>
-            <AppText variant="label" color={Colors.textInverse} style={styles.joinBtnText}>Join Now</AppText>
+          <TouchableOpacity onPress={handleJoinNow} style={styles.joinBtn} {...a11y} accessibilityLabel={t('register.joinNow')} activeOpacity={0.8}>
+            <AppText variant="label" color={Colors.textInverse} style={styles.joinBtnText}>{t('register.joinNow')}</AppText>
           </TouchableOpacity>
 
           <View style={styles.loginRow}>
-            <AppText variant="bodySm" color={Colors.textMuted}>Already have an account? </AppText>
-            <TouchableOpacity onPress={() => router.back()} {...a11y} accessibilityLabel="Sign in">
-              <AppText variant="bodySm" color={Colors.navy}>Sign in</AppText>
+            <AppText variant="bodySm" color={Colors.textMuted}>{t('auth.hasAccount')}{' '}</AppText>
+            <TouchableOpacity onPress={() => router.back()} {...a11y} accessibilityLabel={t('auth.signInLower')}>
+              <AppText variant="bodySm" color={Colors.navy}>{t('auth.signInLower')}</AppText>
             </TouchableOpacity>
           </View>
         </ScrollView>

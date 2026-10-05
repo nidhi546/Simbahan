@@ -8,8 +8,10 @@ import { Spacing, Radius } from '../../constants/Layout';
 import { AppText } from '../ui';
 import { useAuthStore } from '../../store/authStore';
 import { useMemberStore } from '../../store/memberStore';
+import { useI18n } from '../../i18n';
 
 const FamilyCard = () => {
+  const { t } = useI18n();
   const currentUser = useAuthStore((s) => s.currentUser);
   const families = useMemberStore((s) => s.families);
   const members = useMemberStore((s) => s.members);
@@ -32,7 +34,7 @@ const FamilyCard = () => {
     <TouchableOpacity
       onPress={handlePress}
       accessible
-      accessibilityLabel={`View ${family.familyName}`}
+      accessibilityLabel={t('family.cardViewA11y', { name: family.familyName })}
       activeOpacity={0.85}
       style={styles.card}
     >
@@ -41,7 +43,7 @@ const FamilyCard = () => {
           <Ionicons name="people-outline" size={18} color={Colors.sage} />
         </View>
         <AppText variant="label" color={Colors.sage} style={styles.sectionLabel}>
-          AKING PAMILYA
+          {t('family.cardTitle')}
         </AppText>
       </View>
       <AppText variant="headingSm" color={Colors.navy} style={styles.familyName}>
@@ -66,7 +68,7 @@ const FamilyCard = () => {
           )}
         </View>
         <AppText variant="bodySm" color={Colors.textMuted}>
-          {familyMembers.length} miyembro
+          {t('family.cardMemberCount', { count: familyMembers.length })}
         </AppText>
       </View>
     </TouchableOpacity>

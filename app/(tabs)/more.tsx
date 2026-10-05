@@ -18,13 +18,14 @@ import { Colors } from "../../constants/Colors";
 import { Spacing, Radius } from "../../constants/Layout";
 import { useAuthStore } from "../../store/authStore";
 import { useUiStore } from "../../store/uiStore";
+import { useI18n } from "../../i18n";
 
 const isWeb = Platform.OS === "web";
 
 type MenuItem = {
   id: string;
-  label: string;
-  sublabel: string;
+  labelKey: string;
+  sublabelKey: string;
   icon: React.ComponentProps<typeof Ionicons>["name"];
   dot: string;
   route: string;
@@ -33,96 +34,96 @@ type MenuItem = {
 const MENU: MenuItem[] = [
   {
     id: "1",
-    label: "Iskedyul ng Misa",
-    sublabel: "Mass Schedule",
+    labelKey: "more.items.massSchedule.label",
+    sublabelKey: "more.items.massSchedule.sublabel",
     icon: "time-outline",
     dot: Colors.navy,
     route: "/mass-schedule",
   },
   {
     id: "2",
-    label: "Donasyon",
-    sublabel: "Donations",
+    labelKey: "more.items.donations.label",
+    sublabelKey: "more.items.donations.sublabel",
     icon: "gift-outline",
     dot: Colors.gold,
     route: "/donations",
   },
   {
     id: "3",
-    label: "Komunidad",
-    sublabel: "Community",
+    labelKey: "more.items.community.label",
+    sublabelKey: "more.items.community.sublabel",
     icon: "people-outline",
     dot: Colors.sage,
     route: "/community",
   },
   {
     id: "4",
-    label: "Aking Pamilya",
-    sublabel: "My Family",
+    labelKey: "more.items.family.label",
+    sublabelKey: "more.items.family.sublabel",
     icon: "heart-outline",
     dot: Colors.crimson,
     route: "/family",
   },
   {
     id: "5",
-    label: "Sakramento",
-    sublabel: "Sacraments",
+    labelKey: "more.items.sacraments.label",
+    sublabelKey: "more.items.sacraments.sublabel",
     icon: "water-outline",
     dot: Colors.sage,
     route: "/sacraments",
   },
   {
     id: "6",
-    label: "Nobena",
-    sublabel: "Novenas & Prayers",
+    labelKey: "more.items.novenas.label",
+    sublabelKey: "more.items.novenas.sublabel",
     icon: "book-outline",
     dot: Colors.gold,
     route: "/novenas",
   },
   {
     id: "7",
-    label: "Mahal na Araw",
-    sublabel: "Holy Week",
+    labelKey: "more.items.holyWeek.label",
+    sublabelKey: "more.items.holyWeek.sublabel",
     icon: "sunny-outline",
     dot: Colors.crimson,
     route: "/holy-week",
   },
   {
     id: "8",
-    label: "Simbang Gabi",
-    sublabel: "Dawn Mass Tracker",
+    labelKey: "more.items.simbangGabi.label",
+    sublabelKey: "more.items.simbangGabi.sublabel",
     icon: "moon-outline",
     dot: Colors.navy,
     route: "/simbang-gabi",
   },
   {
     id: "9",
-    label: "Profile",
-    sublabel: "Aking Account",
+    labelKey: "more.items.profile.label",
+    sublabelKey: "more.items.profile.sublabel",
     icon: "person-outline",
     dot: Colors.navy,
     route: "/profile",
   },
   {
     id: "10",
-    label: "Mga Abiso",
-    sublabel: "Notifications",
+    labelKey: "more.items.notifications.label",
+    sublabelKey: "more.items.notifications.sublabel",
     icon: "notifications-outline",
     dot: Colors.gold,
     route: "/notifications",
   },
   {
     id: "11",
-    label: "Mga Setting",
-    sublabel: "Settings",
+    labelKey: "more.items.settings.label",
+    sublabelKey: "more.items.settings.sublabel",
     icon: "settings-outline",
     dot: Colors.textMuted,
     route: "/settings",
   },
   {
     id: "12",
-    label: "Info ng Parokya",
-    sublabel: "Parish Info",
+    labelKey: "more.items.parishInfo.label",
+    sublabelKey: "more.items.parishInfo.sublabel",
     icon: "business-outline",
     dot: Colors.navy,
     route: "/parish-info",
@@ -132,13 +133,15 @@ const MENU: MenuItem[] = [
 const keyExtractor = (item: MenuItem) => item.id;
 
 const MenuCard = React.memo(
-  ({ item, onPress }: { item: MenuItem; onPress: (r: string) => void }) => (
+  ({ item, onPress }: { item: MenuItem; onPress: (r: string) => void }) => {
+    const { t } = useI18n();
+    return (
     <TouchableOpacity
       onPress={() => onPress(item.route)}
       style={styles.card}
       activeOpacity={0.75}
       accessible
-      accessibilityLabel={item.label}
+      accessibilityLabel={t(item.labelKey)}
       accessibilityRole="button"
     >
       <View style={styles.cardIconRow}>
@@ -152,18 +155,20 @@ const MenuCard = React.memo(
         <View style={[styles.dot, { backgroundColor: item.dot }]} />
       </View>
       <AppText variant="headingSm" color={Colors.textPrimary} numberOfLines={1}>
-        {item.label}
+        {t(item.labelKey)}
       </AppText>
       <AppText variant="caption" color={Colors.textMuted} numberOfLines={1}>
-        {item.sublabel}
+        {t(item.sublabelKey)}
       </AppText>
     </TouchableOpacity>
-  ),
+    );
+  },
 );
 
 export default function MoreScreen() {
   const currentUser = useAuthStore((s) => s.currentUser);
   const openSidebar = useUiStore((s) => s.openSidebar);
+  const { t } = useI18n();
 
   const handleNav = useCallback(
     (route: string) => router.push(route as never),
@@ -172,7 +177,7 @@ export default function MoreScreen() {
 
   const fullName = currentUser
     ? `${currentUser.firstName} ${currentUser.lastName}`
-    : "Kaibigan";
+    : t("more.guestName");
 
   const ListHeader = (
     <>
@@ -188,17 +193,17 @@ export default function MoreScreen() {
                 style={styles.menuBtn}
                 activeOpacity={0.7}
                 accessible
-                accessibilityLabel="Buksan ang menu"
+                accessibilityLabel={t("nav.openMenu")}
               >
                 <Ionicons name="menu" size={24} color={Colors.textInverse} />
               </TouchableOpacity>
             )}
           </View>
           <AppText variant="bodySm" color={Colors.goldLight}>
-            Lahat ng tampok ng simbahan app
+            {t("more.tagline")}
           </AppText>
           <AppText variant="displaySm" color={Colors.textInverse}>
-            Higit Pa
+            {t("more.title")}
           </AppText>
         </View>
       </GradientView>
@@ -209,7 +214,7 @@ export default function MoreScreen() {
         style={styles.profileCard}
         activeOpacity={0.85}
         accessible
-        accessibilityLabel="Tingnan ang profile"
+        accessibilityLabel={t("more.viewProfileA11y")}
       >
         <Avatar uri={currentUser?.avatar} name={fullName} size="md" />
         <View style={styles.profileInfo}>
@@ -217,7 +222,7 @@ export default function MoreScreen() {
             {fullName}
           </AppText>
           <AppText variant="caption" color={Colors.textMuted} numberOfLines={1}>
-            {currentUser?.role ?? "miyembro"} · i-tap para tingnan ang profile
+            {currentUser?.role ?? t("more.defaultRole")} · {t("more.tapToViewProfile")}
           </AppText>
         </View>
         <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
@@ -228,7 +233,7 @@ export default function MoreScreen() {
         color={Colors.textMuted}
         style={styles.gridLabel}
       >
-        MGA TAMPOK
+        {t("more.featuresLabel")}
       </AppText>
     </>
   );

@@ -14,28 +14,30 @@ import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { useModule09Store } from '../../store/module09Store';
 import { useUiStore } from '../../store/uiStore';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 
 const DAYS_DATA = [
-  { day: 1, date: 'Dis 16', gospel: 'Lucas 1:26-38', celebration: 'Unang Simbang Gabi — Pagsisimula ng Siyam na Araw' },
-  { day: 2, date: 'Dis 17', gospel: 'Mateo 1:1-17',  celebration: 'Pangalawang Simbang Gabi — Pamilya ni Hesus' },
-  { day: 3, date: 'Dis 18', gospel: 'Mateo 1:18-24', celebration: 'Ikatlong Simbang Gabi — Si Jose at Maria' },
-  { day: 4, date: 'Dis 19', gospel: 'Lucas 1:5-25',  celebration: 'Ikaapat na Simbang Gabi — Pagsilang ni Juan Bautista' },
-  { day: 5, date: 'Dis 20', gospel: 'Lucas 1:26-38', celebration: 'Ikalimang Simbang Gabi — Pagbati ng Anghel' },
-  { day: 6, date: 'Dis 21', gospel: 'Lucas 1:39-45', celebration: 'Ikaanim na Simbang Gabi — Pagdalaw ni Maria' },
-  { day: 7, date: 'Dis 22', gospel: 'Lucas 1:46-56', celebration: 'Ikapitong Simbang Gabi — Magnificat' },
-  { day: 8, date: 'Dis 23', gospel: 'Lucas 1:57-66', celebration: 'Ikawalong Simbang Gabi — Pagsilang ni Juan' },
-  { day: 9, date: 'Dis 24', gospel: 'Lucas 1:67-79', celebration: 'Huling Simbang Gabi — Benedictus' },
+  { day: 1, dateNum: 16, gospelBookKey: 'simbangGabi.books.luke', gospelRef: '1:26-38', celebrationKey: 'simbangGabi.celebrations.day1' },
+  { day: 2, dateNum: 17, gospelBookKey: 'simbangGabi.books.matthew', gospelRef: '1:1-17', celebrationKey: 'simbangGabi.celebrations.day2' },
+  { day: 3, dateNum: 18, gospelBookKey: 'simbangGabi.books.matthew', gospelRef: '1:18-24', celebrationKey: 'simbangGabi.celebrations.day3' },
+  { day: 4, dateNum: 19, gospelBookKey: 'simbangGabi.books.luke', gospelRef: '1:5-25', celebrationKey: 'simbangGabi.celebrations.day4' },
+  { day: 5, dateNum: 20, gospelBookKey: 'simbangGabi.books.luke', gospelRef: '1:26-38', celebrationKey: 'simbangGabi.celebrations.day5' },
+  { day: 6, dateNum: 21, gospelBookKey: 'simbangGabi.books.luke', gospelRef: '1:39-45', celebrationKey: 'simbangGabi.celebrations.day6' },
+  { day: 7, dateNum: 22, gospelBookKey: 'simbangGabi.books.luke', gospelRef: '1:46-56', celebrationKey: 'simbangGabi.celebrations.day7' },
+  { day: 8, dateNum: 23, gospelBookKey: 'simbangGabi.books.luke', gospelRef: '1:57-66', celebrationKey: 'simbangGabi.celebrations.day8' },
+  { day: 9, dateNum: 24, gospelBookKey: 'simbangGabi.books.luke', gospelRef: '1:67-79', celebrationKey: 'simbangGabi.celebrations.day9' },
 ];
 
 const FOODS = [
-  { name: 'Puto Bumbong', icon: '🟣', desc: 'Malagkit na bigas na niluto sa kawayan' },
-  { name: 'Bibingka',     icon: '🟡', desc: 'Malambot na bibingka na may itlog at kesong puti' },
-  { name: 'Hot Choco',    icon: '🍫', desc: 'Mainit na tsokolate mula sa tablea' },
+  { name: 'Puto Bumbong', icon: '🟣', descKey: 'simbangGabi.foods.putoBumbong' },
+  { name: 'Bibingka',     icon: '🟡', descKey: 'simbangGabi.foods.bibingka' },
+  { name: 'Hot Choco',    icon: '🍫', descKey: 'simbangGabi.foods.hotChoco' },
 ];
 
 export default function SimbangGabiScreen() {
+  const { t } = useI18n();
   const attendedDays = useModule09Store((s) => s.simbangGabi.attendedDays);
   const checkIn = useModule09Store((s) => s.checkInSimbangGabi);
   const showToast = useUiStore((s) => s.showToast);
@@ -54,10 +56,10 @@ export default function SimbangGabiScreen() {
   const handleCheckIn = useCallback(() => {
     if (!selectedDay) return;
     checkIn(selectedDay);
-    showToast(`Araw ${selectedDay} — Naka-check in!`, 'success');
+    showToast(t('simbangGabi.checkedInToast', { day: selectedDay }), 'success');
     if (attendedDays.length + 1 === 9) setShowComplete(true);
     setSelectedDay(null);
-  }, [selectedDay, checkIn, showToast, attendedDays.length]);
+  }, [selectedDay, checkIn, showToast, attendedDays.length, t]);
 
   const dayInfo = selectedDay ? DAYS_DATA.find((d) => d.day === selectedDay) : null;
 
@@ -73,15 +75,16 @@ export default function SimbangGabiScreen() {
         </View>
         <AppText variant="displaySm" color={Colors.textInverse}>Simbang Gabi</AppText>
         <AppText variant="bodySm" color={Colors.goldLight}>
-          {attendedDays.length}/9 Misa na nadaluhan
+          {t('simbangGabi.attendedCount', { count: attendedDays.length })}
         </AppText>
       </GradientView>
 
       {/* 9-day grid */}
       <View style={styles.section}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>Tracker</AppText>
+        <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>{t('simbangGabi.tracker')}</AppText>
         <View style={styles.grid}>
-          {DAYS_DATA.map(({ day, date }) => {
+          {DAYS_DATA.map(({ day, dateNum }) => {
+            const date = t('simbangGabi.dateDec', { day: dateNum });
             const done = attendedDays.includes(day);
             const isActive = day === activeDay && !done;
             return (
@@ -95,7 +98,7 @@ export default function SimbangGabiScreen() {
                   selectedDay === day && styles.dayCellSelected,
                 ]}
                 accessible
-                accessibilityLabel={`Araw ${day}, ${date}`}
+                accessibilityLabel={t('simbangGabi.dayCellA11y', { day, date })}
               >
                 {done ? (
                   <Ionicons name="checkmark-circle" size={22} color={Colors.textInverse} />
@@ -120,24 +123,24 @@ export default function SimbangGabiScreen() {
       {dayInfo && (
         <View style={styles.card}>
           <AppText variant="headingSm" color={Colors.navy}>
-            Araw {dayInfo.day} — {dayInfo.date}
+            {t('simbangGabi.dayTitle', { day: dayInfo.day, date: t('simbangGabi.dateDec', { day: dayInfo.dateNum }) })}
           </AppText>
-          <AppText variant="bodyMd" color={Colors.textSecondary}>{dayInfo.celebration}</AppText>
+          <AppText variant="bodyMd" color={Colors.textSecondary}>{t(dayInfo.celebrationKey)}</AppText>
           <View style={styles.infoRow}>
             <Ionicons name="book-outline" size={14} color={Colors.gold} />
             <AppText variant="bodySm" color={Colors.textMuted} style={{ marginLeft: 4 }}>
-              Ebanghelyo: {dayInfo.gospel}
+              {t('simbangGabi.gospel', { ref: `${t(dayInfo.gospelBookKey)} ${dayInfo.gospelRef}` })}
             </AppText>
           </View>
           <AppText variant="bodySm" color={Colors.textMuted}>
-            Misa: 4:30 AM · Simbahan ng Barangay Holy Spirit
+            {t('simbangGabi.massInfo')}
           </AppText>
           {!attendedDays.includes(dayInfo.day) ? (
-            <AppButton label={`I-check in: Araw ${dayInfo.day}`} onPress={handleCheckIn} />
+            <AppButton label={t('simbangGabi.checkInDay', { day: dayInfo.day })} onPress={handleCheckIn} />
           ) : (
             <View style={styles.checkedBadge}>
               <Ionicons name="checkmark-circle" size={16} color={Colors.sage} />
-              <AppText variant="label" color={Colors.sage}>Naka-check in na</AppText>
+              <AppText variant="label" color={Colors.sage}>{t('simbangGabi.checkedIn')}</AppText>
             </View>
           )}
         </View>
@@ -146,14 +149,14 @@ export default function SimbangGabiScreen() {
       {/* Food section */}
       <View style={styles.section}>
         <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>
-          Pagkain pagkatapos ng Misa
+          {t('simbangGabi.foodTitle')}
         </AppText>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.foodRow}>
           {FOODS.map((f) => (
             <View key={f.name} style={styles.foodCard}>
               <AppText style={styles.foodIcon}>{f.icon}</AppText>
               <AppText variant="headingSm" color={Colors.navy}>{f.name}</AppText>
-              <AppText variant="caption" color={Colors.textMuted}>{f.desc}</AppText>
+              <AppText variant="caption" color={Colors.textMuted}>{t(f.descKey)}</AppText>
             </View>
           ))}
         </ScrollView>
@@ -176,14 +179,14 @@ export default function SimbangGabiScreen() {
             <AppText style={styles.completionStars}>✦ ✧ ✦ ✧ ✦</AppText>
             <Ionicons name="star" size={64} color={Colors.gold} />
             <AppText variant="displaySm" color={Colors.navy} style={{ textAlign: 'center' }}>
-              Binabati kita!
+              {t('simbangGabi.congrats')}
             </AppText>
             <AppText variant="bodyMd" color={Colors.textSecondary} style={{ textAlign: 'center' }}>
-              Natapos mo ang lahat ng 9 na Simbang Gabi! Maligayang Pasko!
+              {t('simbangGabi.completeMessage')}
             </AppText>
-            <AppButton label="Ibahagi ang Tagumpay" onPress={() => setShowComplete(false)} />
-            <TouchableOpacity onPress={() => setShowComplete(false)} accessible accessibilityLabel="Isara">
-              <AppText variant="bodySm" color={Colors.textMuted}>Isara</AppText>
+            <AppButton label={t('simbangGabi.share')} onPress={() => setShowComplete(false)} />
+            <TouchableOpacity onPress={() => setShowComplete(false)} accessible accessibilityLabel={t('simbangGabi.close')}>
+              <AppText variant="bodySm" color={Colors.textMuted}>{t('simbangGabi.close')}</AppText>
             </TouchableOpacity>
           </View>
         </View>

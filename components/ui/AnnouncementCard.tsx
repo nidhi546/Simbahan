@@ -7,6 +7,7 @@ import { Spacing, Radius, Shadows } from '../../constants/Layout';
 import { Typography } from '../../constants/Typography';
 import AppText from './AppText';
 import { formatShortDate, timeAgo } from '../../utils/dateHelpers';
+import { useI18n } from '../../i18n';
 
 type Props = {
   id: string;
@@ -23,6 +24,7 @@ type Props = {
 
 const AnnouncementCard = ({ id, title, category, date, description, image, isPinned, isRead, publishedBy, onPress }: Props) => {
   const handlePress = useCallback(() => onPress(id), [id, onPress]);
+  const { t, language } = useI18n();
   const preview = description.length > 120 ? description.slice(0, 120) + '...' : description;
 
   return (
@@ -40,7 +42,7 @@ const AnnouncementCard = ({ id, title, category, date, description, image, isPin
           </View>
           {!isRead && <View style={styles.unreadDot} />}
         </View>
-        <AppText variant="caption" color={Colors.textMuted}>{formatShortDate(date)}</AppText>
+        <AppText variant="caption" color={Colors.textMuted}>{formatShortDate(date, language)}</AppText>
       </View>
 
       {/* Image */}
@@ -74,7 +76,7 @@ const AnnouncementCard = ({ id, title, category, date, description, image, isPin
         <View style={styles.metaItem}>
           <Ionicons name="time-outline" size={12} color={Colors.textMuted} />
           <AppText variant="caption" color={Colors.textMuted} style={styles.metaText}>
-            {timeAgo(date)}
+            {timeAgo(date, language)}
           </AppText>
         </View>
       </View>
@@ -82,7 +84,7 @@ const AnnouncementCard = ({ id, title, category, date, description, image, isPin
       {/* Pinned label */}
       {isPinned && (
         <View style={styles.pinnedLabel}>
-          <AppText variant="caption" color={Colors.gold}>📌 Naka-pin</AppText>
+          <AppText variant="caption" color={Colors.gold}>{t('ui.pinned')}</AppText>
         </View>
       )}
     </Pressable>

@@ -1,4 +1,6 @@
 import { Colors } from '../constants/Colors';
+import { translate } from '../i18n';
+import type { LanguageCode } from '../store/countryStore';
 
 type LiturgicalEntry = {
   season: string;
@@ -61,16 +63,15 @@ export function getLiturgicalSeasonBg(season: string): string {
   }
 }
 
-export function formatFilipinoDate(date: Date = new Date()): string {
-  const MONTHS_FIL = [
-    'Enero', 'Pebrero', 'Marso', 'Abril', 'Mayo', 'Hunyo',
-    'Hulyo', 'Agosto', 'Setyembre', 'Oktubre', 'Nobyembre', 'Disyembre',
-  ];
-  const DAYS_FIL = [
-    'Linggo', 'Lunes', 'Martes', 'Miyerkules',
-    'Huwebes', 'Biyernes', 'Sabado',
-  ];
-  return `${DAYS_FIL[date.getDay()]}, ${date.getDate()} ng ${MONTHS_FIL[date.getMonth()]} ${date.getFullYear()}`;
+export function formatFilipinoDate(date: Date = new Date(), language: LanguageCode = 'fil'): string {
+  const MONTH_KEYS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+  const DAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  return translate(language, 'dates.longDate', {
+    weekday: translate(language, `massSchedule.${DAY_KEYS[date.getDay()]}`),
+    day: date.getDate(),
+    month: translate(language, `dates.months.${MONTH_KEYS[date.getMonth()]}`),
+    year: date.getFullYear(),
+  });
 }
 
 export function getUpcomingFeasts(daysAhead = 30): { date: string; name: string; rank: string }[] {
@@ -110,4 +111,27 @@ export function getMarkedDates(feasts: { date: string; rank: string }[]): Record
     };
   });
   return marked;
+}
+
+const RANK_KEYS: Record<string, string> = {
+  'Solemnity': 'liturgical.ranks.solemnity',
+  'Feast': 'liturgical.ranks.feast',
+  'Memorial': 'liturgical.ranks.memorial',
+  'Optional Memorial': 'liturgical.ranks.optionalMemorial',
+  'Commemoration': 'liturgical.ranks.commemoration',
+};
+
+/** Translated display label for a feast rank; unknown ranks are returned as-is. */
+export function formatRank(rank: string, t: (key: string) => string): string {
+  const key = RANK_KEYS[rank];
+  return key ? t(key) : rank;
+}
+
+const SEASON_KEYS = ['advent', 'lent', 'christmas', 'easter', 'pentecost', 'ordinary'];
+
+/** Translated "<Season> Time" label; unknown seasons fall back to "<SEASON> TIME". */
+export function formatSeasonTime(season: string, t: (key: string) => string): string {
+  return SEASON_KEYS.includes(season)
+    ? t(`liturgical.seasonTime.${season}`)
+    : `${season.toUpperCase()} TIME`;
 }

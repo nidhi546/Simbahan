@@ -11,16 +11,17 @@ import { Colors } from '../../constants/Colors';
 import { Spacing, Radius } from '../../constants/Layout';
 import { useModule09Store } from '../../store/module09Store';
 import { useAuthStore } from '../../store/authStore';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 
 const SACRAMENTS = [
-  { type: 'baptism',      labelFil: 'Binyag',       labelEn: 'Baptism',      icon: 'water-outline'      as const, note: 'Para sa mga sanggol at matatanda' },
-  { type: 'marriage',     labelFil: 'Kasal',         labelEn: 'Wedding',      icon: 'heart-outline'      as const, note: 'Sakramento ng Matrimonyo' },
-  { type: 'confirmation', labelFil: 'Kumpil',        labelEn: 'Confirmation', icon: 'flame-outline'      as const, note: 'Pagpapatibay ng pananampalataya' },
-  { type: 'anointing',    labelFil: 'Panghuling Habilin', labelEn: 'Anointing', icon: 'medkit-outline'  as const, note: 'Para sa mga maysakit' },
-  { type: 'funeral',      labelFil: 'Libing',        labelEn: 'Funeral',      icon: 'flower-outline'     as const, note: 'Misa ng Libing' },
-  { type: 'other',        labelFil: 'Iba pa',        labelEn: 'Other',        icon: 'ellipsis-horizontal-outline' as const, note: 'Iba pang kahilingan' },
+  { type: 'baptism',      labelKey: 'sacraments.types.baptism',      icon: 'water-outline'      as const, noteKey: 'sacraments.notes.baptism' },
+  { type: 'marriage',     labelKey: 'sacraments.types.marriage',     icon: 'heart-outline'      as const, noteKey: 'sacraments.notes.marriage' },
+  { type: 'confirmation', labelKey: 'sacraments.types.confirmation', icon: 'flame-outline'      as const, noteKey: 'sacraments.notes.confirmation' },
+  { type: 'anointing',    labelKey: 'sacraments.types.anointing',    icon: 'medkit-outline'     as const, noteKey: 'sacraments.notes.anointing' },
+  { type: 'funeral',      labelKey: 'sacraments.types.funeral',      icon: 'flower-outline'     as const, noteKey: 'sacraments.notes.funeral' },
+  { type: 'other',        labelKey: 'sacraments.types.other',        icon: 'ellipsis-horizontal-outline' as const, noteKey: 'sacraments.notes.other' },
 ];
 
 const STATUS_COLORS: Record<string, string> = {
@@ -33,6 +34,7 @@ const STATUS_COLORS: Record<string, string> = {
 export default function SacramentsScreen() {
   const requests = useModule09Store((s) => s.sacramentRequests);
   const currentUser = useAuthStore((s) => s.currentUser);
+  const { t } = useI18n();
 
   const myRequests = requests
     .filter((r) => r.memberId === currentUser?.id)
@@ -46,21 +48,21 @@ export default function SacramentsScreen() {
     <ScrollView style={styles.screen} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       <BackBar />
       <GradientView colors={[Colors.crimson, Colors.crimsonLight]} style={styles.header}>
-        <AppText variant="displaySm" color={Colors.textInverse}>Mga Sakramento</AppText>
-        <AppText variant="bodySm" color="rgba(255,255,255,0.75)">Sacramental requests</AppText>
+        <AppText variant="displaySm" color={Colors.textInverse}>{t('sacraments.title')}</AppText>
+        <AppText variant="bodySm" color="rgba(255,255,255,0.75)">{t('sacraments.subtitle')}</AppText>
       </GradientView>
 
       {/* Info card */}
       <View style={styles.infoCard}>
         <Ionicons name="information-circle-outline" size={20} color={Colors.navy} />
         <AppText variant="bodySm" color={Colors.textSecondary} style={{ flex: 1 }}>
-          Ang mga sakramento ay espesyal na ritwal ng Simbahang Katoliko. Pumili ng uri ng sakramento para magsumite ng kahilingan.
+          {t('sacraments.info')}
         </AppText>
       </View>
 
       {/* Grid */}
       <View style={styles.section}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>Pumili ng Sakramento</AppText>
+        <AppText variant="headingSm" color={Colors.navy} style={styles.sectionTitle}>{t('sacraments.chooseSacrament')}</AppText>
         <View style={styles.grid}>
           {SACRAMENTS.map((s) => (
             <TouchableOpacity
@@ -68,13 +70,12 @@ export default function SacramentsScreen() {
               onPress={() => handleSacrament(s.type)}
               style={styles.sacCard}
               accessible
-              accessibilityLabel={s.labelFil}
+              accessibilityLabel={t(s.labelKey)}
               activeOpacity={0.8}
             >
               <Ionicons name={s.icon} size={28} color={Colors.crimson} />
-              <AppText variant="headingSm" color={Colors.navy}>{s.labelFil}</AppText>
-              <AppText variant="caption" color={Colors.textMuted}>{s.labelEn}</AppText>
-              <AppText variant="caption" color={Colors.textMuted} numberOfLines={2}>{s.note}</AppText>
+              <AppText variant="headingSm" color={Colors.navy}>{t(s.labelKey)}</AppText>
+              <AppText variant="caption" color={Colors.textMuted} numberOfLines={2}>{t(s.noteKey)}</AppText>
             </TouchableOpacity>
           ))}
         </View>
@@ -83,21 +84,21 @@ export default function SacramentsScreen() {
       {/* My requests */}
       <View style={styles.section}>
         <View style={styles.sectionRow}>
-          <AppText variant="headingSm" color={Colors.navy}>Aking mga Kahilingan</AppText>
-          <TouchableOpacity onPress={() => router.push('/sacraments/request' as never)} accessible accessibilityLabel="Bagong kahilingan">
-            <AppText variant="label" color={Colors.navy}>+ Bago</AppText>
+          <AppText variant="headingSm" color={Colors.navy}>{t('sacraments.myRequests')}</AppText>
+          <TouchableOpacity onPress={() => router.push('/sacraments/request' as never)} accessible accessibilityLabel={t('sacraments.newRequestA11y')}>
+            <AppText variant="label" color={Colors.navy}>{t('sacraments.newRequest')}</AppText>
           </TouchableOpacity>
         </View>
         {myRequests.length === 0 ? (
-          <AppText variant="bodySm" color={Colors.textMuted}>Wala pang kahilingan.</AppText>
+          <AppText variant="bodySm" color={Colors.textMuted}>{t('sacraments.noRequests')}</AppText>
         ) : (
           myRequests.map((r) => (
             <View key={r.id} style={[styles.requestCard, { borderLeftColor: STATUS_COLORS[r.status] ?? Colors.navy }]}>
-              <AppText variant="headingSm" color={Colors.navy} style={{ textTransform: 'capitalize' }}>{r.type}</AppText>
+              <AppText variant="headingSm" color={Colors.navy} style={{ textTransform: 'capitalize' }}>{t(`sacraments.types.${r.type}`)}</AppText>
               <AppText variant="caption" color={Colors.textMuted}>{r.preferredDate}</AppText>
               <View style={[styles.statusBadge, { backgroundColor: STATUS_COLORS[r.status] + '22' }]}>
                 <AppText variant="caption" color={STATUS_COLORS[r.status] ?? Colors.navy} style={{ textTransform: 'capitalize' }}>
-                  {r.status}
+                  {t(`sacraments.statuses.${r.status}`)}
                 </AppText>
               </View>
             </View>

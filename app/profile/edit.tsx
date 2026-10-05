@@ -12,9 +12,16 @@ import { Spacing, Radius } from '../../constants/Layout';
 import { useAuthStore } from '../../store/authStore';
 import { useModule10Store } from '../../store/module10Store';
 import { useUiStore } from '../../store/uiStore';
+import { useI18n } from '../../i18n';
 
 const isWeb = Platform.OS === 'web';
 const CIVIL_STATUSES = ['Single', 'Married', 'Widowed', 'Separated'];
+const CIVIL_STATUS_KEYS: Record<string, string> = {
+  Single: 'profileEdit.civilSingle',
+  Married: 'profileEdit.civilMarried',
+  Widowed: 'profileEdit.civilWidowed',
+  Separated: 'profileEdit.civilSeparated',
+};
 
 function Field({ label, value, onChange, placeholder, keyboardType }: {
   label: string; value: string; onChange: (v: string) => void;
@@ -38,6 +45,7 @@ function Field({ label, value, onChange, placeholder, keyboardType }: {
 }
 
 export default function EditProfileScreen() {
+  const { t } = useI18n();
   const currentUser = useAuthStore((s) => s.currentUser);
   const profileEdits = useModule10Store((s) => s.profileEdits);
   const saveProfileEdits = useModule10Store((s) => s.saveProfileEdits);
@@ -54,36 +62,36 @@ export default function EditProfileScreen() {
 
   const handleSave = useCallback(() => {
     saveProfileEdits({ firstName, lastName, phone, email, barangay, birthday, civilStatus: civil, directoryVisible: visible });
-    showToast('Na-save ang profile!', 'success');
+    showToast(t('profileEdit.saved'), 'success');
     router.back();
-  }, [firstName, lastName, phone, email, barangay, birthday, civil, visible, saveProfileEdits, showToast]);
+  }, [firstName, lastName, phone, email, barangay, birthday, civil, visible, saveProfileEdits, showToast, t]);
 
   const content = (
     <ScrollView style={styles.screen} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} accessible accessibilityLabel="Bumalik">
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} accessible accessibilityLabel={t('common.back')}>
           <Ionicons name="arrow-back" size={20} color={Colors.navy} />
-          <AppText variant="bodyMd" color={Colors.navy}>Bumalik</AppText>
+          <AppText variant="bodyMd" color={Colors.navy}>{t('common.back')}</AppText>
         </TouchableOpacity>
-        <AppText variant="headingMd" color={Colors.navy}>I-edit ang Profile</AppText>
+        <AppText variant="headingMd" color={Colors.navy}>{t('profile.edit')}</AppText>
       </View>
 
       {/* Avatar placeholder */}
       <View style={styles.avatarSection}>
         <Avatar uri={currentUser?.avatar} name={`${firstName} ${lastName}`} size="lg" />
-        <TouchableOpacity style={styles.changePhotoBtn} accessible accessibilityLabel="Palitan ang larawan">
-          <AppText variant="label" color={Colors.navy}>Palitan ang Larawan</AppText>
+        <TouchableOpacity style={styles.changePhotoBtn} accessible accessibilityLabel={t('profileEdit.changePhotoA11y')}>
+          <AppText variant="label" color={Colors.navy}>{t('profileEdit.changePhoto')}</AppText>
         </TouchableOpacity>
       </View>
 
       <View style={styles.card}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>Personal na Impormasyon</AppText>
-        <Field label="Unang Pangalan" value={firstName} onChange={setFirstName} />
-        <Field label="Apelyido"       value={lastName}  onChange={setLastName}  />
-        <Field label="Kaarawan"       value={birthday}  onChange={setBirthday}  placeholder="YYYY-MM-DD" />
-        <Field label="Barangay"       value={barangay}  onChange={setBarangay}  />
+        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>{t('profileEdit.personalInfo')}</AppText>
+        <Field label={t('profileEdit.firstName')} value={firstName} onChange={setFirstName} />
+        <Field label={t('profile.lastName')} value={lastName}  onChange={setLastName}  />
+        <Field label={t('profile.birthday')} value={birthday}  onChange={setBirthday}  placeholder="YYYY-MM-DD" />
+        <Field label={t('profileEdit.barangay')} value={barangay}  onChange={setBarangay}  />
 
-        <AppText variant="label" color={Colors.textSecondary} style={styles.segLabel}>Katayuang Sibil</AppText>
+        <AppText variant="label" color={Colors.textSecondary} style={styles.segLabel}>{t('profileEdit.civilStatus')}</AppText>
         <View style={styles.segRow}>
           {CIVIL_STATUSES.map((s) => (
             <TouchableOpacity
@@ -91,25 +99,25 @@ export default function EditProfileScreen() {
               onPress={() => setCivil(s)}
               style={[styles.segBtn, civil === s && styles.segBtnActive]}
               accessible
-              accessibilityLabel={s}
+              accessibilityLabel={t(CIVIL_STATUS_KEYS[s])}
             >
-              <AppText variant="label" color={civil === s ? Colors.textInverse : Colors.textMuted}>{s}</AppText>
+              <AppText variant="label" color={civil === s ? Colors.textInverse : Colors.textMuted}>{t(CIVIL_STATUS_KEYS[s])}</AppText>
             </TouchableOpacity>
           ))}
         </View>
       </View>
 
       <View style={styles.card}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>Pakikipag-ugnayan</AppText>
-        <Field label="Telepono" value={phone} onChange={setPhone} keyboardType="phone-pad" />
-        <Field label="Email"    value={email} onChange={setEmail} keyboardType="email-address" />
+        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>{t('profileEdit.contact')}</AppText>
+        <Field label={t('profile.phone')} value={phone} onChange={setPhone} keyboardType="phone-pad" />
+        <Field label={t('profile.email')} value={email} onChange={setEmail} keyboardType="email-address" />
       </View>
 
       <View style={styles.card}>
         <View style={styles.toggleRow}>
           <View style={{ flex: 1 }}>
-            <AppText variant="headingSm" color={Colors.navy}>Makikita sa Direktoryo</AppText>
-            <AppText variant="caption" color={Colors.textMuted}>Ipakita ang inyong profile sa ibang miyembro</AppText>
+            <AppText variant="headingSm" color={Colors.navy}>{t('profileEdit.directoryVisible')}</AppText>
+            <AppText variant="caption" color={Colors.textMuted}>{t('profileEdit.directoryVisibleHint')}</AppText>
           </View>
           <Switch
             value={visible}
@@ -117,13 +125,13 @@ export default function EditProfileScreen() {
             trackColor={{ false: Colors.border, true: Colors.navy }}
             thumbColor={Colors.textInverse}
             accessible
-            accessibilityLabel="Directory visibility"
+            accessibilityLabel={t('profileEdit.directoryVisibilityA11y')}
           />
         </View>
       </View>
 
       <View style={styles.saveWrap}>
-        <AppButton label="I-save ang mga Pagbabago" onPress={handleSave} />
+        <AppButton label={t('profile.saveChanges')} onPress={handleSave} />
       </View>
     </ScrollView>
   );

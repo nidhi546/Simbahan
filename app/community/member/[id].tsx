@@ -16,10 +16,12 @@ import WebLayout from '../../../components/ui/WebLayout';
 import { Colors } from '../../../constants/Colors';
 import { Spacing, Radius } from '../../../constants/Layout';
 import { useMemberStore } from '../../../store/memberStore';
+import { useI18n } from '../../../i18n';
 
 const isWeb = Platform.OS === 'web';
 
 export default function MemberDetailScreen() {
+  const { t } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const members = useMemberStore((s) => s.members);
   const families = useMemberStore((s) => s.families);
@@ -34,24 +36,24 @@ export default function MemberDetailScreen() {
     return (
       <SafeAreaView style={styles.screen} edges={['top']}>
         <AppText variant="bodyMd" color={Colors.textMuted} style={{ padding: Spacing.lg }}>
-          Hindi nahanap ang miyembro.
+          {t('member.notFound')}
         </AppText>
       </SafeAreaView>
     );
   }
 
   const infoRows = [
-    { icon: 'location-outline' as const,  label: 'Barangay',      value: member.barangay },
-    { icon: 'calendar-outline' as const,  label: 'Sumali',        value: member.joinedDate },
-    { icon: 'person-outline' as const,    label: 'Kasarian',      value: member.gender === 'male' ? 'Lalaki' : 'Babae' },
-    { icon: 'ribbon-outline' as const,    label: 'Tungkulin',     value: member.role },
+    { icon: 'location-outline' as const,  key: 'barangay', label: t('member.barangay'), value: member.barangay },
+    { icon: 'calendar-outline' as const,  key: 'joined', label: t('member.joined'), value: member.joinedDate },
+    { icon: 'person-outline' as const,    key: 'gender', label: t('member.gender'), value: member.gender === 'male' ? t('member.male') : t('member.female') },
+    { icon: 'ribbon-outline' as const,    key: 'role', label: t('member.role'), value: member.role },
   ];
 
   const content = (
     <ScrollView style={styles.screen} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-      <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} accessible accessibilityLabel="Bumalik">
+      <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} accessible accessibilityLabel={t('member.back')}>
         <Ionicons name="arrow-back" size={20} color={Colors.navy} />
-        <AppText variant="bodyMd" color={Colors.navy}>Bumalik</AppText>
+        <AppText variant="bodyMd" color={Colors.navy}>{t('member.back')}</AppText>
       </TouchableOpacity>
 
       {/* Avatar + name */}
@@ -66,7 +68,7 @@ export default function MemberDetailScreen() {
       {/* Ministries */}
       {member.ministries.length > 0 && (
         <View style={styles.card}>
-          <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>Mga Ministeryo</AppText>
+          <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>{t('member.ministries')}</AppText>
           <View style={styles.badgeRow}>
             {member.ministries.map((m) => (
               <Badge key={m} label={m} variant="navy" size="md" />
@@ -77,9 +79,9 @@ export default function MemberDetailScreen() {
 
       {/* Info rows */}
       <View style={styles.card}>
-        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>Impormasyon</AppText>
+        <AppText variant="headingSm" color={Colors.navy} style={styles.cardTitle}>{t('member.information')}</AppText>
         {infoRows.map((row) => (
-          <View key={row.label} style={styles.infoRow}>
+          <View key={row.key} style={styles.infoRow}>
             <Ionicons name={row.icon} size={16} color={Colors.gold} />
             <AppText variant="bodySm" color={Colors.textMuted} style={styles.infoLabel}>{row.label}</AppText>
             <AppText variant="bodyMd" color={Colors.textPrimary} style={{ flex: 1 }}>{row.value}</AppText>
