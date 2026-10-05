@@ -6,3 +6,37 @@ expo-env.d.ts
 # @end expo-cli
 .vercel
 .env*.local
+
+# dependencies
+node_modules/
+
+# Expo / build output
+.expo/
+dist/
+web-build/
+landing/dist/
+
+# native builds
+android/.gradle/
+android/build/
+android/app/build/
+android/app/.cxx/
+**/.cxx/
+ios/Pods/
+ios/build/
+*.apk
+*.aab
+*.ipa
+
+# secrets / signing
+keystore
+*.keystore
+!android/app/debug.keystore
+*.jks
+AAB_FILE_CRED
+.env
+.env*.local
+
+# misc
+.DS_Store
+*.log

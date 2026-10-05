@@ -1,4 +1,0 @@
-keyalias :: "key"
-storepassword :: "Abc@123"
-keypassword :: "Abc@123"
-jksFile ::"../../Desktop/Simbahan/keystore.jks"
